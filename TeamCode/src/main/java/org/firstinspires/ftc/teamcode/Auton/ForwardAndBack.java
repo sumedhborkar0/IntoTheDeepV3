@@ -15,9 +15,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-//DOESNT WORK
-@Autonomous(name = "AutoV1", group = "TeleopV2")
-public class AutonV1 extends LinearOpMode {
+//WORKS
+@Autonomous(name = "ForwardAndBack", group = "TeleopV2")
+public class ForwardAndBack extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -61,8 +61,8 @@ public class AutonV1 extends LinearOpMode {
         Actions.runBlocking(
                 drive.actionBuilder(new Pose2d(0, 0, 0))
 
-                .lineToY(50)
-                .lineToY(0)
+                .lineToX(50)
+                .lineToX(0)
                 .build());
 
 
@@ -70,3 +70,4 @@ public class AutonV1 extends LinearOpMode {
     }
 
 }
+
