@@ -63,14 +63,14 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
         // drive model parameters
-        public double inPerTick = 237.1/120128;
-        public double lateralInPerTick = 0.0015922701249238373;
-        public double trackWidthTicks = 6821.158589001498;
+        public double inPerTick = 121.45669/61719.5;;
+        public double lateralInPerTick = 0.0015083757460394405;
+        public double trackWidthTicks = 6388.64120058699;
 
         // feedforward parameters (in tick units)
-        public double kS = 1.2535894637526148;
-        public double kV = 0.0004044160103374403;
-        public double kA = 0;
+        public double kS = 1.2152944017662803;
+        public double kV = 0.00041692046826446544;
+        public double kA = 0.0001;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -82,13 +82,13 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 0.0;
-        public double lateralGain = 0.0;
-        public double headingGain = 0.0; // shared with turn
+        public double axialGain = 0.5;
+        public double lateralGain = 0.5;
+        public double headingGain = 2.3; // shared with turn
 
-        public double axialVelGain = 0.0;
-        public double lateralVelGain = 0.0;
-        public double headingVelGain = 0.0; // shared with turn
+        public double axialVelGain = 1.0;
+        public double lateralVelGain = 0.5;
+        public double headingVelGain = 2.3; // shared with turn
     }
 
     public static Params PARAMS = new Params();
@@ -235,7 +235,7 @@ public final class MecanumDrive {
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
         lazyImu = new LazyImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
-                PARAMS.logoFacingDirection.UP, PARAMS.usbFacingDirection.FORWARD));
+                PARAMS.logoFacingDirection.RIGHT, PARAMS.usbFacingDirection.BACKWARD));
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
