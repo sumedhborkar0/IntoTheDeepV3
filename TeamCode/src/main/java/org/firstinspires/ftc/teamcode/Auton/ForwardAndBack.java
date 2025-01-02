@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 //WORKS
-@Autonomous(name = "ForwardAndBack", group = "TeleopV2")
+@Autonomous(name = "ForwardAndBack", preselectTeleOp = "TeleopV2")
 public class ForwardAndBack extends LinearOpMode {
 
     @Override

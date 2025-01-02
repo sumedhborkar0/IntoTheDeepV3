@@ -1,23 +1,16 @@
 package org.firstinspires.ftc.teamcode.Auton;
-import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-//WORKS
-@Autonomous(name = "AutoV1", preselectTeleOp = "TeleopV2")
-public class AutonV1 extends LinearOpMode {
+// NOT COMPLETE
+@Autonomous(name = "AutoV2", preselectTeleOp = "TeleopV2")
+public class AutoV2 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -59,16 +52,9 @@ public class AutonV1 extends LinearOpMode {
 */
 
         Actions.runBlocking(
-                drive.actionBuilder(new Pose2d(0, 0, 0))
-                .strafeTo(new Vector2d(6,50))
-                .strafeTo(new Vector2d(25,48))
+                drive.actionBuilder(new Pose2d(-60, 0, 0))
+                .strafeTo(new Vector2d(-54,0))
 
-                .strafeTo(new Vector2d(5, 48))
-                .strafeTo(new Vector2d(25,58))
-                .strafeTo(new Vector2d(5, 58))
-                .strafeTo(new Vector2d(25, 60))
-                .strafeTo(new Vector2d(5, 58))
-                .strafeTo(new Vector2d(5,0))
                 .build());
 
 
