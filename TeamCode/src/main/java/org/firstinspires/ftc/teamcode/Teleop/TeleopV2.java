@@ -30,8 +30,11 @@ public class TeleopV2 extends LinearOpMode {
         DcMotor rightBack = hardwareMap.dcMotor.get("rightBack");
         DcMotor slidesRight = hardwareMap.dcMotor.get("slidesRight");
         DcMotor slidesLeft = hardwareMap.dcMotor.get("slidesLeft");
-        Servo rightServo = hardwareMap.servo.get("rightServo");
-        Servo leftServo = hardwareMap.servo.get("leftServo");
+        Servo rightIntakeServo = hardwareMap.servo.get("rightServo");
+        Servo leftIntakeServo = hardwareMap.servo.get("leftServo");
+        DcMotor intake = hardwareMap.dcMotor.get("intake");
+        Servo fourBarRight =hardwareMap.servo.get("fourBarRight");
+        Servo fourBarleft =hardwareMap.servo.get("fourBarLeft");
         double fs = 0.01, ticks_in_degrees = 1;
         PIDController controller = new PIDController(0.004,0,0);
 
@@ -42,18 +45,23 @@ public class TeleopV2 extends LinearOpMode {
         // See the note about this earlier on this page.
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
-        rightServo.setDirection(Servo.Direction.REVERSE);
+        rightIntakeServo.setDirection(Servo.Direction.REVERSE);
         slidesLeft.setDirection(DcMotor.Direction.REVERSE);
+        fourBarRight.setDirection(Servo.Direction.REVERSE);
 
         slidesLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slidesRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slidesLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slidesRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        leftServo.setPosition(0.5);
-        rightServo.setPosition(0.5);
+/////////////////////////////////////////////////////////////
+        //INITIALIZATIONS
+        leftIntakeServo.setPosition(0.5);
+        rightIntakeServo.setPosition(0.5);
         double targets = 100;
-
+        intake.setPower(0);
+        fourBarRight.setPosition(0.3);
+        fourBarleft.setPosition(0.3);
+/////////////////////////////////////////////////////////////
         boolean goingDown = false;
 
         waitForStart();
@@ -75,8 +83,6 @@ public class TeleopV2 extends LinearOpMode {
             double backLeftPower = (y - x + rx) / denominator;
             double frontRightPower = (y - x - rx) / denominator;
             double backRightPower = (y + x - rx) / denominator;
-
-
             leftFront.setPower(frontLeftPower);
             leftBack.setPower(backLeftPower);
             rightFront.setPower(frontRightPower);
@@ -85,30 +91,50 @@ public class TeleopV2 extends LinearOpMode {
 
             // SCISSOR LIFT
             if (gamepad1.dpad_up) {
-                rightServo.setPosition(0.7);
-                leftServo.setPosition(0.7);
+                fourBarRight.setPosition(0.8);
+                fourBarleft.setPosition(0.8);
+                rightIntakeServo.setPosition(0.7);
+                leftIntakeServo.setPosition(0.7);
             }
             if (gamepad1.dpad_down) {
-                rightServo.setPosition(0.5);
-                leftServo.setPosition(0.5);
+                rightIntakeServo.setPosition(0.5);
+                leftIntakeServo.setPosition(0.5);
+                fourBarRight.setPosition(0.3);
+                fourBarleft.setPosition(0.3);
             }
 
             //SLIDES PID
-            if (gamepad1.a) {
+            if (gamepad2.a) {
                 targets = 0;
                 goingDown = true;
             }
-            else if (gamepad1.y){
+            else if (gamepad2.y){
                 targets = 2800;
             }
-            else if (gamepad1.b){
+            else if (gamepad2.b){
                 targets = 1070;
+                goingDown = true;
             }
 
             if (goingDown && (slidesRight.getCurrentPosition() < 50 || slidesLeft.getCurrentPosition() < 50)){
                 goingDown = false;
                 targets = 100;
             }
+            if(gamepad1.right_bumper){
+                intake.setPower(0.5);
+            }
+            else if(gamepad1.left_bumper){
+                intake.setPower(-0.5);
+            }
+            else if(gamepad1.a){
+                intake.setPower(0);
+            }
+            if(gamepad1.x){
+                fourBarRight.setPosition(0.8);
+                fourBarleft.setPosition(0.8);
+            }
+
+
 
 
             int slidesleftpos = slidesLeft.getCurrentPosition();
