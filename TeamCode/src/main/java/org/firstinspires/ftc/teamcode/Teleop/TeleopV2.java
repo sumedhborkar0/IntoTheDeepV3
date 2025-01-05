@@ -26,6 +26,7 @@ public class TeleopV2 extends LinearOpMode {
         DcMotor leftBack = hardwareMap.dcMotor.get("leftBack");
         DcMotor rightFront = hardwareMap.dcMotor.get("rightFront");
         DcMotor rightBack = hardwareMap.dcMotor.get("rightBack");
+
         DcMotor slidesRight = hardwareMap.dcMotor.get("slidesRight");
         DcMotor slidesLeft = hardwareMap.dcMotor.get("slidesLeft");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
@@ -250,13 +251,6 @@ public class TeleopV2 extends LinearOpMode {
             slidesLeft.setPower(powerleft);
             slidesRight.setPower(powerright);
 
-            telemetry.addData("LeftSlidePower", powerleft);
-            telemetry.addData("RightSlidePower", powerright);
-            telemetry.update();
-
-            telemetry.addData("LeftSlide", slidesLeft.getCurrentPosition());
-            telemetry.addData("RightSlide", slidesRight.getCurrentPosition());
-            telemetry.update();
 
             // CHECK IF BUTTONS RELEASED
             if (!gamepad1.right_bumper) {
