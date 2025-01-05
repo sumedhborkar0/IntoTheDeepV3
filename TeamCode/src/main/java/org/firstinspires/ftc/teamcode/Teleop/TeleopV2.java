@@ -28,11 +28,22 @@ public class TeleopV2 extends LinearOpMode {
         DcMotor rightBack = hardwareMap.dcMotor.get("rightBack");
         DcMotor slidesRight = hardwareMap.dcMotor.get("slidesRight");
         DcMotor slidesLeft = hardwareMap.dcMotor.get("slidesLeft");
+        DcMotor intake = hardwareMap.dcMotor.get("intake");
+        
         Servo rightIntakeServo = hardwareMap.servo.get("rightServo");
         Servo leftIntakeServo = hardwareMap.servo.get("leftServo");
-        DcMotor intake = hardwareMap.dcMotor.get("intake");
-        Servo fourBarRight =hardwareMap.servo.get("fourBarRight");
-        Servo fourBarleft =hardwareMap.servo.get("fourBarLeft");
+        Servo fourBarRight = hardwareMap.servo.get("fourBarRight");
+        Servo fourBarleft = hardwareMap.servo.get("fourBarLeft");
+        Servo intakeAngle = hardwareMap.servo.get("intakeAngle");
+        
+        Servo rightWrist = hardwareMap.servo.get("rightWrist");
+        Servo leftWrist = hardwareMap.servo.get("leftWrist");
+        Servo armServo = hardwareMap.servo.get("armMotor");
+        Servo clawServo = hardwareMap.servo.get("clawMotor");
+        
+        
+        
+        
         double fs = 0.01, ticks_in_degrees = 1;
         PIDController controller = new PIDController(0.004,0,0);
 
@@ -53,10 +64,15 @@ public class TeleopV2 extends LinearOpMode {
         //INIATE MOTOR POSITIONS
         leftIntakeServo.setPosition(0.5);
         rightIntakeServo.setPosition(0.5);
+        rightWrist.setPosition(0.5);
+        leftWrist.setPosition(0.5);
+        armServo.setPosition(0.5);
+        clawServo.setPosition(0.5);
 
+        intakeAngle.setPosition(0);
         intake.setPower(0);
-        fourBarRight.setPosition(0.3);
-        fourBarleft.setPosition(0.3);
+        fourBarRight.setPosition(0.25);
+        fourBarleft.setPosition(0.25);
 
 
         double targets = 100;
@@ -72,7 +88,10 @@ public class TeleopV2 extends LinearOpMode {
         boolean gamepad1_leftBumperReleased = true;
         boolean gamepad1_dPadDownReleased = true;
         boolean gamepad1_dPadUpReleased = true;
+        boolean gamepad1_leftTriggerReleased = true;
 
+        /*boolean gamepad1_yReleased = true;
+        boolean gamepad1_aReleased = true; ARM TESTING*/
 
         waitForStart();
 
@@ -81,6 +100,20 @@ public class TeleopV2 extends LinearOpMode {
         while (opModeIsActive()) {
 
         // GAMEPAD 1 CONTROLS
+
+            /* ARM MOTOR POSITION TESTING
+            if (gamepad1_aReleased && gamepad1.a) {
+                double currPosition = armServo.getPosition();
+                armServo.setPosition(currPosition - 0.05);
+                gamepad1_aReleased = false;
+            }
+            if (gamepad1_yReleased && gamepad1.y) {
+                double currPosition = armServo.getPosition();
+                armServo.setPosition(currPosition+ 0.05);
+                gamepad1_yReleased = false;
+            }
+            */
+
             //MECANUM DRIVE
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
@@ -104,10 +137,11 @@ public class TeleopV2 extends LinearOpMode {
 
             // extends scissor lift, extends 4bar
             if (gamepad1.right_bumper && !scissor_extended && gamepad1_rightBumperReleased) {
-                rightIntakeServo.setPosition(0.7);
-                leftIntakeServo.setPosition(0.7);
+                rightIntakeServo.setPosition(0.61);
+                leftIntakeServo.setPosition(0.61);
                 fourBarRight.setPosition(0.85);
                 fourBarleft.setPosition(0.85);
+                intakeAngle.setPosition(0.45);
                 intake.setPower(0.5);
                 scissor_extended = true;
                 intake_running = false;
@@ -119,6 +153,7 @@ public class TeleopV2 extends LinearOpMode {
                 leftIntakeServo.setPosition(0.5);
                 fourBarRight.setPosition(0.85);
                 fourBarleft.setPosition(0.85);
+                intakeAngle.setPosition(0.45);
                 intake.setPower(0.5);
                 intake_running = true;
                 scissor_extended = false;
@@ -128,8 +163,9 @@ public class TeleopV2 extends LinearOpMode {
             if ((gamepad1.left_bumper && gamepad1_leftBumperReleased && intake_running) || (gamepad1.right_bumper && gamepad1_rightBumperReleased && scissor_extended)) {
                 rightIntakeServo.setPosition(0.5);
                 leftIntakeServo.setPosition(0.5);
-                fourBarRight.setPosition(0.3);
-                fourBarleft.setPosition(0.3);
+                fourBarRight.setPosition(0.25);
+                fourBarleft.setPosition(0.25);
+                intakeAngle.setPosition(0);
                 intake.setPower(0);
                 intake_running = false;
                 scissor_extended = false;
@@ -139,24 +175,28 @@ public class TeleopV2 extends LinearOpMode {
 
             if (gamepad1.dpad_down && gamepad1_dPadDownReleased) {
                 double currPos = fourBarRight.getPosition();
-                fourBarRight.setPosition(currPos - 0.1);
-                fourBarleft.setPosition(currPos - 0.1);
+                fourBarRight.setPosition(currPos+ 0.05);
+                fourBarleft.setPosition(currPos + 0.05);
                 gamepad1_dPadDownReleased = false;
             }
             else if (gamepad1.dpad_up && gamepad1_dPadUpReleased) {
-                double currPos = fourBarRight.getPosition();
-                fourBarRight.setPosition(currPos + 0.1);
+                double currPos = fourBarleft.getPosition();
                 fourBarleft.setPosition(currPos + 0.1);
+                fourBarRight.setPosition(currPos + 0.1);
                 gamepad1_dPadUpReleased = false;
             }
 
-            if (gamepad1.left_trigger != 0 && !intake_reversed) {
+
+
+            if (gamepad1.left_trigger != 0 && !intake_reversed && gamepad1_leftTriggerReleased) {
                 intake.setPower(-.5);
                 intake_reversed = true;
+                gamepad1_leftTriggerReleased = false;
             }
-            else if (gamepad1.left_trigger != 0 && intake_reversed) {
+            else if (gamepad1.left_trigger != 0 && intake_reversed && gamepad1_leftTriggerReleased) {
                 intake.setPower(0);
                 intake_reversed = false;
+                gamepad1_leftTriggerReleased = false;
             }
 
         // GAMEPAD 2 CONTROLS ////////////////////////////////////////
@@ -164,6 +204,8 @@ public class TeleopV2 extends LinearOpMode {
             if (gamepad2.left_bumper) {
                 targets = 0;
                 going_down = true;
+                armServo.setPosition(0.15);
+                //open claw
             }
             if (going_down && (slidesRight.getCurrentPosition() < 40 || slidesLeft.getCurrentPosition() < 40)){
                 going_down = false;
@@ -172,20 +214,25 @@ public class TeleopV2 extends LinearOpMode {
             if (gamepad2.a){
                 targets = 0;
                 going_down = true;
-                //MOVE ARM
+                //CLOSE CLAW, MOVE ARM
             }
             else if (gamepad2.b) {
+                //CLOSE CLAW
                 targets = 1070;
                 // Move Arm for hanging the specimen
             }
             else if (gamepad2.x) {
+                //CLOSE CLAW
                 targets = 1070;
                 // Move arm for putting the sample in the basket
             }
             else if (gamepad2.y) {
+                //CLOSE CLAW
                 targets = 2800;
                 // Move arm for putting the sample in the top basket
             }
+
+
 
 
             int slidesleftpos = slidesLeft.getCurrentPosition();
@@ -224,6 +271,19 @@ public class TeleopV2 extends LinearOpMode {
             if (!gamepad1.dpad_down) {
                 gamepad1_dPadDownReleased = true;
             }
+            if (gamepad1.left_trigger == 0) {
+                gamepad1_leftTriggerReleased = true;
+            }
+            /*
+            ARM MOTOR POSITION TESTING
+            if(!gamepad1.a){
+                gamepad1_aReleased = true;
+            }
+            if(!gamepad1.y){
+                gamepad1_yReleased = true;
+            }
+
+             */
 
 
 
