@@ -13,6 +13,8 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
@@ -27,8 +29,8 @@ public class AutoV3 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
-        DcMotor slidesRight = hardwareMap.dcMotor.get("slidesRight");
-        DcMotor slidesLeft = hardwareMap.dcMotor.get("slidesLeft");
+        DcMotorEx slidesRight = hardwareMap.get(DcMotorEx.class,"slidesRight");
+        DcMotorEx slidesLeft = hardwareMap.get(DcMotorEx.class, "slidesLeft");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
 
         Servo rightExtendoServo = hardwareMap.servo.get("rightServo");
@@ -42,22 +44,28 @@ public class AutoV3 extends LinearOpMode {
         Servo armServo = hardwareMap.servo.get("armMotor");
         Servo clawServo = hardwareMap.servo.get("clawMotor");
 
-        double kp = 0.004, ki = 0, kd = 0, kf = 0;
-        PIDFController controller = new PIDFController(kp, ki, kd, kf);
 
 
         //REVERSE + INITIATE ENCODERS
 
         rightExtendoServo.setDirection(Servo.Direction.REVERSE);
-        slidesLeft.setDirection(DcMotor.Direction.REVERSE);
+        slidesLeft.setDirection(DcMotorEx.Direction.REVERSE);
         fourBarRight.setDirection(Servo.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
         rightWrist.setDirection(Servo.Direction.REVERSE);
 
-        slidesLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slidesRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slidesLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slidesRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        slidesLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slidesRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slidesLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        slidesRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+        slidesLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        slidesRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+
+        PIDFCoefficients coefficients = new PIDFCoefficients(0.004, 0, 0, 0);
+        slidesLeft.setPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION, coefficients);
+        slidesRight.setPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION, coefficients);
 
 
         //POWERS & POSITIONS //////////////////////////////////
@@ -101,45 +109,32 @@ public class AutoV3 extends LinearOpMode {
         fourBarleft.setPosition(fourBarRetractedPos);
 
 
-        double targets = 100;
-
-
-
-        Action PIDAction = packet -> {
-            int slidesleftpos = slidesLeft.getCurrentPosition();
-            double powerLeft = controller.calculate(slidesleftpos, targets);
-
-            int slidesrightpos = slidesRight.getCurrentPosition();
-            double powerRight = controller.calculate(slidesrightpos, targets);
-
-            double powerleft = powerLeft;
-
-            double powerright = powerRight;
-
-            slidesLeft.setPower(powerleft);
-            slidesRight.setPower(powerright);
-            return true;
-        };
 
 
         InstantAction closeClaw = new InstantAction(
                 () -> {
                     clawServo.setPosition(clawClosePos);
 
+
                 }
 
         );
+        myPIDAction pidAction = new myPIDAction(hardwareMap);
 
-
+        InstantAction testHeightChange = new InstantAction(
+                () -> {
+                    pidAction.targets = 500;
+                }
+        );
         waitForStart();
 
         if (isStopRequested()) return;
 
-
         Actions.runBlocking(new ParallelAction(
-                PIDAction,
+                pidAction.calcPID(),
                 new SequentialAction(
 
+                        testHeightChange
                 )
 
         ));

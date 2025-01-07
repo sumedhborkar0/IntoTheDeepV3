@@ -252,7 +252,7 @@ public class TeleopV2 extends LinearOpMode {
                 clawServo.setPosition(clawOpenPos);
                 leftWrist.setPosition(wristInitPos);
                 rightWrist.setPosition(wristInitPos);
-                Thread.sleep(250);
+                //Thread.sleep(250);
                 targets = groundLevel;
                 going_down = true;
                 clawReset = true;
