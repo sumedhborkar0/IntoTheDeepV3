@@ -6,6 +6,8 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -14,6 +16,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.acmerobotics.roadrunner.HolonomicController;
 
 import org.firstinspires.ftc.teamcode.controller.PIDController;
+import org.firstinspires.ftc.teamcode.controller.PIDFController;
 
 
 @TeleOp (name = "TeleopV2")
@@ -42,17 +45,12 @@ public class TeleopV2 extends LinearOpMode {
         Servo armServo = hardwareMap.servo.get("armMotor");
         Servo clawServo = hardwareMap.servo.get("clawMotor");
         
-        
-        
-        
-        double fs = 0.01, ticks_in_degrees = 1;
-        PIDController controller = new PIDController(0.004,0,0);
+        double kp = 0.004, ki = 0, kd = 0, kf = 0;
+        PIDFController controller = new PIDFController(kp, ki, kd, kf);
 
 
         //REVERSE + INITIATE ENCODERS
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
-        rightExtendoServo.setDirection(Servo.Direction.REVERSE);
         slidesLeft.setDirection(DcMotor.Direction.REVERSE);
         fourBarRight.setDirection(Servo.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
@@ -69,10 +67,10 @@ public class TeleopV2 extends LinearOpMode {
 
         double intakePower = 0.75;
         double intakeSlowPower = 0.15;
-        double intakeAngle_IntakingPos = 0.5;
+        double intakeAngle_IntakingPos = 0.6;
         double intakeAngle_RetractedPos = 0;
-        double extendoRetractedPos = 0.48;
-        double extendoExtendedPos = 0.61;
+        double extendoRetractedPos = 0.4;
+        double extendoExtendedPos = 0.7;
         double fourBarRetractedPos = 0.25;
         double fourBarExtendedPos = 0.85;
 
@@ -117,6 +115,7 @@ public class TeleopV2 extends LinearOpMode {
 
         // BUTTON RELEASES
         boolean gamepad1_rightBumperReleased = true;
+        boolean gamepad1_rightTriggerReleased = true;
         boolean gamepad1_leftBumperReleased = true;
         boolean gamepad1_dPadDownReleased = true;
         boolean gamepad1_dPadUpReleased = true;
@@ -174,12 +173,20 @@ public class TeleopV2 extends LinearOpMode {
         // SCISSOR LIFT + INTAKE ///////////////
 
             // extends scissor lift, extends 4bar
+            if (gamepad1.right_trigger != 0 && gamepad1_rightTriggerReleased) {
+                intakeAngle.setPosition(0.5);
+                fourBarleft.setPosition(0.7);
+                fourBarRight.setPosition(0.7);
+                gamepad1_rightTriggerReleased = false;
+            }
+
+
             if (gamepad1.right_bumper && !scissor_extended && gamepad1_rightBumperReleased) {
+                intakeAngle.setPosition(intakeAngle_IntakingPos);
                 rightExtendoServo.setPosition(extendoExtendedPos);
                 leftExtendoServo.setPosition(extendoExtendedPos);
                 fourBarRight.setPosition(fourBarExtendedPos);
                 fourBarleft.setPosition(fourBarExtendedPos);
-                intakeAngle.setPosition(intakeAngle_IntakingPos);
                 intake.setPower(intakePower);
                 scissor_extended = true;
                 intake_running = false;
@@ -187,11 +194,12 @@ public class TeleopV2 extends LinearOpMode {
             }
             // inits scissor lift, extends 4bar
             if (gamepad1.left_bumper && !intake_running && gamepad1_leftBumperReleased) {
+                intakeAngle.setPosition(intakeAngle_IntakingPos);
                 rightExtendoServo.setPosition(extendoRetractedPos);
                 leftExtendoServo.setPosition(extendoRetractedPos);
                 fourBarRight.setPosition(fourBarExtendedPos);
                 fourBarleft.setPosition(fourBarExtendedPos);
-                intakeAngle.setPosition(intakeAngle_IntakingPos);
+
                 intake.setPower(intakePower);
                 intake_running = true;
                 scissor_extended = false;
@@ -199,10 +207,10 @@ public class TeleopV2 extends LinearOpMode {
             }
             // inits scissor lift, inits 4bar
             if ((gamepad1.left_bumper && gamepad1_leftBumperReleased && intake_running) || (gamepad1.right_bumper && gamepad1_rightBumperReleased && scissor_extended)) {
-                rightExtendoServo.setPosition(extendoRetractedPos);
-                leftExtendoServo.setPosition(extendoRetractedPos);
                 fourBarRight.setPosition(fourBarRetractedPos);
                 fourBarleft.setPosition(fourBarRetractedPos);
+                rightExtendoServo.setPosition(extendoRetractedPos);
+                leftExtendoServo.setPosition(extendoRetractedPos);
                 intakeAngle.setPosition(intakeAngle_RetractedPos);
                 intake.setPower(intakeSlowPower);
                 intake_running = false;
@@ -310,16 +318,14 @@ public class TeleopV2 extends LinearOpMode {
 
 
             int slidesleftpos = slidesLeft.getCurrentPosition();
-            double pidleft = controller.calculate(slidesleftpos, targets);
-            double ffleft = Math.cos(Math.toRadians(targets / ticks_in_degrees)) * fs;
+            double powerLeft = controller.calculate(slidesleftpos, targets);
 
             int slidesrightpos = slidesRight.getCurrentPosition();
-            double pidright = controller.calculate(slidesrightpos, targets);
-            double ffright = Math.cos(Math.toRadians(targets / ticks_in_degrees)) * fs;
+            double powerRight = controller.calculate(slidesrightpos, targets);
 
-            double powerleft = pidleft + ffleft;
+            double powerleft = powerLeft;
 
-            double powerright = pidright + ffright;
+            double powerright = powerRight;
 
             slidesLeft.setPower(powerleft);
             slidesRight.setPower(powerright);
@@ -354,6 +360,9 @@ public class TeleopV2 extends LinearOpMode {
             }
             if (!gamepad2.y) {
                 gamepad2_yReleased = true;
+            }
+            if (gamepad1.right_trigger == 0) {
+                gamepad1_rightTriggerReleased = true;
             }
 
 

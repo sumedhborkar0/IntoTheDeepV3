@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.controller.PIDController;
+import org.firstinspires.ftc.teamcode.controller.PIDFController;
 
 // NOT COMPLETE
 @Autonomous(name = "AutoV3", preselectTeleOp = "TeleopV2")
@@ -26,13 +27,12 @@ public class AutoV3 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
-
         DcMotor slidesRight = hardwareMap.dcMotor.get("slidesRight");
         DcMotor slidesLeft = hardwareMap.dcMotor.get("slidesLeft");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
 
-        Servo rightIntakeServo = hardwareMap.servo.get("rightServo");
-        Servo leftIntakeServo = hardwareMap.servo.get("leftServo");
+        Servo rightExtendoServo = hardwareMap.servo.get("rightServo");
+        Servo leftExtendoServo = hardwareMap.servo.get("leftServo");
         Servo fourBarRight = hardwareMap.servo.get("fourBarRight");
         Servo fourBarleft = hardwareMap.servo.get("fourBarLeft");
         Servo intakeAngle = hardwareMap.servo.get("intakeAngle");
@@ -42,70 +42,99 @@ public class AutoV3 extends LinearOpMode {
         Servo armServo = hardwareMap.servo.get("armMotor");
         Servo clawServo = hardwareMap.servo.get("clawMotor");
 
-        double fs = 0.01, ticks_in_degrees = 1;
-        PIDController controller = new PIDController(0.004,0,0);
+        double kp = 0.004, ki = 0, kd = 0, kf = 0;
+        PIDFController controller = new PIDFController(kp, ki, kd, kf);
+
 
         //REVERSE + INITIATE ENCODERS
-        rightIntakeServo.setDirection(Servo.Direction.REVERSE);
+
+        rightExtendoServo.setDirection(Servo.Direction.REVERSE);
         slidesLeft.setDirection(DcMotor.Direction.REVERSE);
         fourBarRight.setDirection(Servo.Direction.REVERSE);
+        intake.setDirection(DcMotor.Direction.REVERSE);
+        rightWrist.setDirection(Servo.Direction.REVERSE);
 
         slidesLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slidesRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slidesLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slidesRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        //INIATE MOTOR POSITIONS
-        leftIntakeServo.setPosition(0.5);
-        rightIntakeServo.setPosition(0.5);
-        rightWrist.setPosition(0.5);
-        leftWrist.setPosition(0.5);
-        armServo.setPosition(0.5);
-        clawServo.setPosition(0.5);
 
-        intakeAngle.setPosition(0);
-        intake.setPower(0);
-        fourBarRight.setPosition(0.25);
-        fourBarleft.setPosition(0.25);
+        //POWERS & POSITIONS //////////////////////////////////
+        double stopPower = 0;
+
+        double intakePower = 0.75;
+        double intakeSlowPower = 0.15;
+        double intakeAngle_IntakingPos = 0.5;
+        double intakeAngle_RetractedPos = 0;
+        double extendoRetractedPos = 0.48;
+        double extendoExtendedPos = 0.61;
+        double fourBarRetractedPos = 0.25;
+        double fourBarExtendedPos = 0.85;
+
+        double armInitPos = 0.5;
+        double armPickupPos = 0.25;
+        double armDropPos = 0.7;
+        double wristInitPos = 0.5;
+        double wristPickupPos = 0.95;
+        double wristDropPos = 0.28;
+        double clawOpenPos = 0.4;
+        double clawClosePos = 0.6;
+
+        double groundLevel = 0;
+        double initLevel = 100;
+        double midLevel = 1200;
+        double highLevel = 2800;
+
+
+        //INIATE MOTOR POSITIONS
+        leftExtendoServo.setPosition(extendoRetractedPos);
+        rightExtendoServo.setPosition(extendoRetractedPos);
+        rightWrist.setPosition(wristInitPos);
+        leftWrist.setPosition(wristInitPos);
+        armServo.setPosition(armInitPos);
+        clawServo.setPosition(clawOpenPos);
+
+        intakeAngle.setPosition(intakeAngle_RetractedPos);
+        intake.setPower(stopPower);
+        fourBarRight.setPosition(fourBarRetractedPos);
+        fourBarleft.setPosition(fourBarRetractedPos);
+
 
         double targets = 100;
 
-        Action PIDAction = new Action(){
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                int slidesleftpos = slidesLeft.getCurrentPosition();
-                double pidleft = controller.calculate(slidesleftpos, targets);
-                double ffleft = Math.cos(Math.toRadians(targets / ticks_in_degrees)) * fs;
 
-                int slidesrightpos = slidesRight.getCurrentPosition();
-                double pidright = controller.calculate(slidesrightpos, targets);
-                double ffright = Math.cos(Math.toRadians(targets / ticks_in_degrees)) * fs;
 
-                double powerleft = pidleft + ffleft;
+        Action PIDAction = packet -> {
+            int slidesleftpos = slidesLeft.getCurrentPosition();
+            double powerLeft = controller.calculate(slidesleftpos, targets);
 
-                double powerright = pidright + ffright;
+            int slidesrightpos = slidesRight.getCurrentPosition();
+            double powerRight = controller.calculate(slidesrightpos, targets);
 
-                slidesLeft.setPower(powerleft);
-                slidesRight.setPower(powerright);
-                return true;
-            }
+            double powerleft = powerLeft;
+
+            double powerright = powerRight;
+
+            slidesLeft.setPower(powerleft);
+            slidesRight.setPower(powerright);
+            return true;
         };
+
+
+        InstantAction closeClaw = new InstantAction(
+                () -> {
+                    clawServo.setPosition(clawClosePos);
+
+                }
+
+        );
 
 
         waitForStart();
 
         if (isStopRequested()) return;
-/*
-        Actions.runBlocking(
-                drive.actionBuilder(new Pose2d(-60, 0, Math.toRadians(90.00)))
-                .lineToY(-45)
-                .lineToX(-35)
-                .lineToY(-60)
-                .lineToY(-45)
-                .lineToX(-60)
-                .lineToY(0)
-                .build());
-*/
+
 
         Actions.runBlocking(new ParallelAction(
                 PIDAction,
