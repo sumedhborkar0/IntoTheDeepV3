@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.controller.PIDFController;
 
 
-@TeleOp (name = "TeleopV2")
+@TeleOp (name = "SlidesTest")
 public class SlidesTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

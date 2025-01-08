@@ -45,16 +45,18 @@ public class TeleopV2 extends LinearOpMode {
         Servo armServo = hardwareMap.servo.get("armMotor");
         Servo clawServo = hardwareMap.servo.get("clawMotor");
         
-        double kp = 0.004, ki = 0, kd = 0, kf = 0;
+        double kp = 0.004, ki = 0, kd = 0, kf = 0.0000007;
         PIDFController controller = new PIDFController(kp, ki, kd, kf);
 
 
         //REVERSE + INITIATE ENCODERS
         leftBack.setDirection(DcMotor.Direction.REVERSE);
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
         slidesLeft.setDirection(DcMotor.Direction.REVERSE);
         fourBarRight.setDirection(Servo.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
         rightWrist.setDirection(Servo.Direction.REVERSE);
+        rightExtendoServo.setDirection(Servo.Direction.REVERSE);
 
         slidesLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slidesRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
