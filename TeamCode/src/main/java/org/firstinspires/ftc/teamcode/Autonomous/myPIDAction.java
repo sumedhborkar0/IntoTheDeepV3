@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.controller.PIDFController;
@@ -17,10 +18,17 @@ public class myPIDAction {
     public myPIDAction(HardwareMap hardwareMap) {
         slidesLeft = hardwareMap.get(DcMotor.class, "slidesLeft");
         slidesRight = hardwareMap.get(DcMotor.class, "slidesRight");
+
+        slidesLeft.setDirection(DcMotorEx.Direction.REVERSE);
+
+        slidesLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slidesRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slidesLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        slidesRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
     }
 
-    public class calcPID implements Action {
-        double kp = 0.004, ki = 0, kd = 0, kf = 0;
+    public class CalcPID implements Action {
+        double kp = 0.004, ki = 0, kd = 0, kf = 0.0000007;
         PIDFController controller = new PIDFController(kp, ki, kd, kf);
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
@@ -41,6 +49,6 @@ public class myPIDAction {
     }
 
     public Action calcPID() {
-        return new calcPID();
+        return new CalcPID();
     }
 }

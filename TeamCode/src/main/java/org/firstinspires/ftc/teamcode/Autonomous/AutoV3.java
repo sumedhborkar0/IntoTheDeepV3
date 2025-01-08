@@ -29,8 +29,7 @@ public class AutoV3 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
-        DcMotorEx slidesRight = hardwareMap.get(DcMotorEx.class,"slidesRight");
-        DcMotorEx slidesLeft = hardwareMap.get(DcMotorEx.class, "slidesLeft");
+
         DcMotor intake = hardwareMap.dcMotor.get("intake");
 
         Servo rightExtendoServo = hardwareMap.servo.get("rightServo");
@@ -49,23 +48,13 @@ public class AutoV3 extends LinearOpMode {
         //REVERSE + INITIATE ENCODERS
 
         rightExtendoServo.setDirection(Servo.Direction.REVERSE);
-        slidesLeft.setDirection(DcMotorEx.Direction.REVERSE);
+
         fourBarRight.setDirection(Servo.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
         rightWrist.setDirection(Servo.Direction.REVERSE);
 
 
-        slidesLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        slidesRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        slidesLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        slidesRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        slidesLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        slidesRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-
-        PIDFCoefficients coefficients = new PIDFCoefficients(0.004, 0, 0, 0);
-        slidesLeft.setPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION, coefficients);
-        slidesRight.setPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION, coefficients);
 
 
         //POWERS & POSITIONS //////////////////////////////////
@@ -110,15 +99,6 @@ public class AutoV3 extends LinearOpMode {
 
 
 
-
-        InstantAction closeClaw = new InstantAction(
-                () -> {
-                    clawServo.setPosition(clawClosePos);
-
-
-                }
-
-        );
         myPIDAction pidAction = new myPIDAction(hardwareMap);
 
         InstantAction testHeightChange = new InstantAction(
