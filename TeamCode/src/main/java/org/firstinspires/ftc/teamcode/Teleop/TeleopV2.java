@@ -33,18 +33,18 @@ public class TeleopV2 extends LinearOpMode {
         DcMotor slidesRight = hardwareMap.dcMotor.get("slidesRight");
         DcMotor slidesLeft = hardwareMap.dcMotor.get("slidesLeft");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
-        
+
         Servo rightExtendoServo = hardwareMap.servo.get("rightServo");
         Servo leftExtendoServo = hardwareMap.servo.get("leftServo");
         Servo fourBarRight = hardwareMap.servo.get("fourBarRight");
         Servo fourBarleft = hardwareMap.servo.get("fourBarLeft");
         Servo intakeAngle = hardwareMap.servo.get("intakeAngle");
-        
+
         Servo rightWrist = hardwareMap.servo.get("rightWrist");
         Servo leftWrist = hardwareMap.servo.get("leftWrist");
         Servo armServo = hardwareMap.servo.get("armMotor");
         Servo clawServo = hardwareMap.servo.get("clawMotor");
-        
+
         double kp = 0.004, ki = 0, kd = 0, kf = 0.0000007;
         PIDFController controller = new PIDFController(kp, ki, kd, kf);
 
@@ -70,26 +70,30 @@ public class TeleopV2 extends LinearOpMode {
 
         double intakePower = 0.75;
         double intakeSlowPower = 0.15;
-        double intakeAngle_IntakingPos = 0.6;
+        double intakeAngle_IntakingPos = 0.535;
         double intakeAngle_RetractedPos = 0;
         double extendoRetractedPos = 0.4;
         double extendoExtendedPos = 0.7;
-        double fourBarRetractedPos = 0.25;
-        double fourBarExtendedPos = 0.85;
+        double fourBarRetractedPos = 0.15;
+        double fourBarExtendedPos = 0.85; // maybe 0.75
 
-        double armInitPos = 0.5;
-        double armPickupPos = 0.25;
-        double armDropPos = 0.7;
-        double wristInitPos = 0.5;
-        double wristPickupPos = 0.95;
-        double wristDropPos = 0.28;
+        double armInitPos = 0.35;
+        double armPickupPos = 0.35;
+        double armDropPos = 0.5494;
+        double armVerticalPos = 0.5;
+        double wristInitPos = 0.8;
+        double wristPickupPos = 0.975;
+        double wristVerticalPos = 0.5;
+        double wristDropPos = 0.1994;
         double clawOpenPos = 0.4;
         double clawClosePos = 0.6;
 
         double groundLevel = 0;
         double initLevel = 100;
-        double midLevel = 1200;
+        double midLevel = 1300;
         double highLevel = 2800;
+
+        double startMovingArmBackDistFromTarget = 600;
 
 
         //INIATE MOTOR POSITIONS
@@ -106,7 +110,7 @@ public class TeleopV2 extends LinearOpMode {
         fourBarleft.setPosition(fourBarRetractedPos);
 
 
-        double targets = 100;
+        double targets = groundLevel;
 
         // CURRENT STATES
         boolean going_down = false;
@@ -115,6 +119,14 @@ public class TeleopV2 extends LinearOpMode {
         boolean intake_running = false;
         boolean extended_to_basket = false;
         boolean clawReset = true;
+        boolean armWristInited = true;
+        boolean wristInPickupPos = false;
+        boolean clawJustClosedOnSample = false;
+        boolean clawClosed = false;
+        boolean slidesGoingToMid = false;
+        boolean slidesGoingtoHigh = false;
+        boolean atDropPos = false;
+        boolean justMovedToInitArm = false;
 
         // BUTTON RELEASES
         boolean gamepad1_rightBumperReleased = true;
@@ -125,11 +137,21 @@ public class TeleopV2 extends LinearOpMode {
         boolean gamepad1_dPadRightReleased = true;
         boolean gamepad1_dPadLeftReleased = true;
         boolean gamepad1_leftTriggerReleased = true;
+
+
         boolean gamepad2_xReleased = true;
         boolean gamepad2_yReleased = true;
-//TESTING
-        boolean gamepad1_yReleased = true;
-        boolean gamepad1_aReleased = true;
+        boolean gamepad2_leftBumperReleased = true;
+        boolean gamepad2_rightBumperReleased = true;
+        boolean gamepad2_rightTriggerReleased = true;
+        boolean gamepad2_leftTriggerReleased = true;
+        boolean gamepad2_dPadLeftReleased = true;
+        boolean gamepad2_dPadRightReleased = true;
+// TIMES
+        double wristInPickupPosTime = 0;
+        double clawClosedTime = 0;
+        double justMovedToDropPosTime = 0;
+        double justMovedToInitArmTime = 0;
 
 
 
@@ -139,32 +161,13 @@ public class TeleopV2 extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-        // GAMEPAD 1 CONTROLS
-            if (gamepad1.dpad_right && gamepad1_dPadRightReleased) {
-                targets += 200;
-                gamepad1_dPadRightReleased = false;
-            }
-            if (gamepad1.dpad_left && gamepad1_dPadLeftReleased) {
-                targets -= 200;
-                gamepad1_dPadLeftReleased = false;
-            }
-
-             //ARM MOTOR POSITION TESTING
-            if (gamepad1_aReleased && gamepad1.a) {
-                double currPosition = leftWrist.getPosition();
-                leftWrist.setPosition(currPosition - 0.05);
-                rightWrist.setPosition(currPosition-.05);
-                gamepad1_aReleased = false;
-            }
-            if (gamepad1_yReleased && gamepad1.y) {
-                double currPosition = leftWrist.getPosition();
-                leftWrist.setPosition(currPosition + 0.05);
-                rightWrist.setPosition(currPosition+.05);
-                gamepad1_yReleased = false;
-            }
+            // GAMEPAD 1 CONTROLS
 
 
-            //MECANUM DRIVE
+            //ARM MOTOR POSITION TESTING
+
+
+            //MECANUM DRIVE + SLIDES PIDF
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
             double rx = gamepad1.right_stick_x;
@@ -182,18 +185,18 @@ public class TeleopV2 extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
+            int slidesleftpos = slidesLeft.getCurrentPosition();
+            double powerLeft = controller.calculate(slidesleftpos, targets);
 
-        // SCISSOR LIFT + INTAKE ///////////////
+            int slidesrightpos = slidesRight.getCurrentPosition();
+            double powerRight = controller.calculate(slidesrightpos, targets);
+
+            slidesLeft.setPower(powerLeft);
+            slidesRight.setPower(powerRight);
+
+            // SCISSOR LIFT + INTAKE ///////////////
 
             // extends scissor lift, extends 4bar
-            if (gamepad1.right_trigger != 0 && gamepad1_rightTriggerReleased) {
-                intakeAngle.setPosition(0.5);
-                fourBarleft.setPosition(0.7);
-                fourBarRight.setPosition(0.7);
-                gamepad1_rightTriggerReleased = false;
-            }
-
-
             if (gamepad1.right_bumper && !scissor_extended && gamepad1_rightBumperReleased) {
                 intakeAngle.setPosition(intakeAngle_IntakingPos);
                 rightExtendoServo.setPosition(extendoExtendedPos);
@@ -232,112 +235,121 @@ public class TeleopV2 extends LinearOpMode {
                 gamepad1_leftBumperReleased = false;
             }
 
-            if (gamepad1.dpad_down && gamepad1_dPadDownReleased) {
-                double currPos = armServo.getPosition();
-                armServo.setPosition(currPos+ 0.05);
-                gamepad1_dPadDownReleased = false;
-            }
-            else if (gamepad1.dpad_up && gamepad1_dPadUpReleased) {
-                double currPos = armServo.getPosition();
-                armServo.setPosition(currPos - 0.05);
-                gamepad1_dPadUpReleased = false;
-            }
-
-
-
-            if (gamepad1.left_trigger != 0 && !intake_reversed && gamepad1_leftTriggerReleased) {
+            if (gamepad1.left_trigger != 0 && intake.getPower() == 0 && gamepad1_leftTriggerReleased) {
                 intake.setPower(-1);
-                intake_reversed = true;
                 gamepad1_leftTriggerReleased = false;
-            }
-            else if (gamepad1.left_trigger != 0 && intake_reversed && gamepad1_leftTriggerReleased) {
+            } else if (gamepad1.left_trigger != 0 && intake.getPower() != 0 && gamepad1_leftTriggerReleased) {
                 intake.setPower(stopPower);
-                intake_reversed = false;
                 gamepad1_leftTriggerReleased = false;
             }
 
-        // GAMEPAD 2 CONTROLS ////////////////////////////////////////
+            // GAMEPAD 2 CONTROLS ////////////////////////////////////////
             //SLIDES PID
-            if (gamepad2.left_bumper) {
-                armServo.setPosition(armInitPos);
-                clawServo.setPosition(clawOpenPos);
+            if (gamepad2.left_bumper && gamepad2_leftBumperReleased && !atDropPos) {
                 leftWrist.setPosition(wristInitPos);
                 rightWrist.setPosition(wristInitPos);
-                //Thread.sleep(250);
-                targets = groundLevel;
-                going_down = true;
-                clawReset = true;
-            }
-            if (going_down && (slidesRight.getCurrentPosition() < 25 || slidesLeft.getCurrentPosition() < 25)){
-                going_down = false;
-                targets = initLevel;
-            }
-            if (((gamepad2.x && gamepad2_xReleased) || (gamepad2.y && gamepad2_yReleased)) && clawReset) {
+                armServo.setPosition(armInitPos);
                 clawServo.setPosition(clawOpenPos);
+                targets = groundLevel;
+                armWristInited = true;
+                gamepad2_leftBumperReleased = false;
+            }
+            else if (gamepad2.left_bumper && gamepad2_leftBumperReleased && atDropPos) {
+                leftWrist.setPosition(wristDropPos);
+                rightWrist.setPosition(wristInitPos);
+                armServo.setPosition(armInitPos);
+                justMovedToInitArmTime = System.currentTimeMillis();
+                justMovedToInitArm = true;
+                clawServo.setPosition(clawOpenPos);
+                atDropPos = false;
+                gamepad2_leftBumperReleased = false;
+
+            }
+            if (justMovedToInitArm && System.currentTimeMillis() - justMovedToInitArmTime >= 150) {
+                targets = groundLevel;
+                justMovedToInitArm = false;
+                armWristInited = true;
+
+            }
+
+            if (gamepad2.right_bumper && gamepad2_rightBumperReleased && armWristInited && (slidesLeft.getCurrentPosition() < 50 || slidesRight.getCurrentPosition() < 50)) {
+                armServo.setPosition(armPickupPos);
                 leftWrist.setPosition(wristPickupPos);
                 rightWrist.setPosition(wristPickupPos);
-                armServo.setPosition(armPickupPos);
-                clawReset = false;
-                gamepad2_xReleased = false;
-                gamepad2_yReleased = false;
+                wristInPickupPosTime = System.currentTimeMillis();
+                gamepad2_rightBumperReleased = false;
+                armWristInited = false;
+                wristInPickupPos = true;
             }
-            if (gamepad2.a){
-                targets = groundLevel;
-                going_down = true;
-                //CLOSE CLAW, MOVE ARM
-            }
-            else if (gamepad2.b) {
-                //CLOSE CLAW
-                targets = midLevel;
-                // Move Arm for hanging the specimen
-            }
-            else if (gamepad2.x && !extended_to_basket && gamepad2_xReleased && !clawReset) {
+            if (wristInPickupPos && System.currentTimeMillis() - wristInPickupPosTime >= 50) {
                 clawServo.setPosition(clawClosePos);
-                Thread.sleep(100);
-
-                targets = midLevel;
-                intake.setPower(stopPower);
-                extended_to_basket = true;
-                gamepad2_xReleased = false;
-                clawReset = false;
+                clawClosedTime = System.currentTimeMillis();
+                wristInPickupPos = false;
+                clawJustClosedOnSample = true;
+                clawClosed = true;
+            }
+            if (clawJustClosedOnSample && System.currentTimeMillis() - clawClosedTime >= 100) {
+                leftWrist.setPosition(wristVerticalPos);
+                rightWrist.setPosition(wristVerticalPos);
+                armServo.setPosition(armVerticalPos);
+                clawJustClosedOnSample = false;
 
             }
-            else if (gamepad2.y && !extended_to_basket && gamepad2_yReleased && !clawReset) {
-                clawServo.setPosition(clawClosePos);
-                Thread.sleep(100);
 
+
+            if (gamepad2.x && gamepad2_xReleased && clawClosed) {
+                targets = midLevel;
+                slidesGoingToMid = true;
+                gamepad2_xReleased = false;
+            }
+            else if (gamepad2.x && gamepad2_xReleased && !clawClosed) {
+                targets = midLevel;
+                gamepad2_xReleased = false;
+            }
+
+            if (gamepad2.y && gamepad2_yReleased && clawClosed) {
                 targets = highLevel;
-                intake.setPower(stopPower);
-                extended_to_basket = true;
+                slidesGoingtoHigh = true;
                 gamepad2_yReleased = false;
-                clawReset = false;
-
             }
-            else if (((gamepad2.x && gamepad2_xReleased) || (gamepad2.y && gamepad2_yReleased)) && extended_to_basket ) {
-                armServo.setPosition(armDropPos);
+            else if (gamepad2.y && gamepad2_yReleased && !clawClosed) {
+                targets = highLevel;
+                gamepad2_yReleased = false;
+            }
+
+            if ((slidesGoingToMid || slidesGoingtoHigh) && (slidesLeft.getCurrentPosition() >= targets - startMovingArmBackDistFromTarget || slidesRight.getCurrentPosition() >= targets - startMovingArmBackDistFromTarget)) {
                 leftWrist.setPosition(wristDropPos);
                 rightWrist.setPosition(wristDropPos);
-                gamepad2_yReleased = false;
-                gamepad2_xReleased = false;
-                extended_to_basket = false;
+                armServo.setPosition(armDropPos);
+                slidesGoingToMid = false;
+                slidesGoingtoHigh = false;
+                atDropPos = true;
             }
-            if (gamepad2.right_bumper) {
+            if ((gamepad2.left_trigger != 0) && gamepad2_leftTriggerReleased) {
                 clawServo.setPosition(clawOpenPos);
+                clawClosed = false;
+                gamepad2_leftTriggerReleased = false;
+            }
+            if (gamepad2.right_trigger != 0 && gamepad2_rightTriggerReleased){
+                clawServo.setPosition(clawClosePos);
+                clawClosed = true;
+                gamepad2_rightTriggerReleased = false;
+            }
+            if (gamepad2.dpad_left && gamepad2_dPadLeftReleased) {
+                double currWristPos = leftWrist.getPosition();
+                leftWrist.setPosition(currWristPos - 0.05);
+                rightWrist.setPosition(currWristPos - 0.05);
+                gamepad2_dPadLeftReleased = false;
+            }
+            if (gamepad2.dpad_right && gamepad2_dPadRightReleased) {
+                double currWristPos = leftWrist.getPosition();
+                leftWrist.setPosition(currWristPos + 0.05);
+                rightWrist.setPosition(currWristPos + 0.05);
+                gamepad2_dPadRightReleased = false;
             }
 
 
 
-
-
-
-            int slidesleftpos = slidesLeft.getCurrentPosition();
-            double powerLeft = controller.calculate(slidesleftpos, targets);
-
-            int slidesrightpos = slidesRight.getCurrentPosition();
-            double powerRight = controller.calculate(slidesrightpos, targets);
-
-            slidesLeft.setPower(powerLeft);
-            slidesRight.setPower(powerRight);
 
 
             // CHECK IF BUTTONS RELEASED
@@ -364,27 +376,38 @@ public class TeleopV2 extends LinearOpMode {
             }
 
             //ARM MOTOR POSITION TESTING
-            if(!gamepad1.a){
-                gamepad1_aReleased = true;
+
+            if (gamepad1.right_trigger == 0) {
+                gamepad1_rightTriggerReleased = true;
             }
-            if(!gamepad1.y){
-                gamepad1_yReleased = true;
-            }
+
             if (!gamepad2.x) {
                 gamepad2_xReleased = true;
             }
             if (!gamepad2.y) {
                 gamepad2_yReleased = true;
             }
-            if (gamepad1.right_trigger == 0) {
-                gamepad1_rightTriggerReleased = true;
+            if (!gamepad2.left_bumper) {
+                gamepad2_leftBumperReleased = true;
+            }
+            if (!gamepad2.right_bumper) {
+                gamepad2_rightBumperReleased = true;
+            }
+            if (gamepad2.right_trigger == 0) {
+                gamepad2_rightTriggerReleased = true;
+            }
+            if (gamepad2.left_trigger == 0) {
+                gamepad2_leftTriggerReleased = true;
+            }
+            if (!gamepad2.dpad_left) {
+                gamepad2_dPadLeftReleased = true;
+            }
+            if (!gamepad2.dpad_right) {
+                gamepad2_dPadRightReleased = true;
             }
 
 
-
-
-
         }
-
     }
+
 }

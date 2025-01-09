@@ -73,7 +73,7 @@ public class AutoV3 extends LinearOpMode {
         double fourBarExtendedPos = 0.85;
 
         double armInitPos = 0.35;
-        double armPickupPos = 0.25;
+        double armPickupPos = 0.35;
         double armDropPos = 0.5494;
         double wristInitPos = 0.8;
         double wristPickupPos = 0.975;
@@ -83,7 +83,7 @@ public class AutoV3 extends LinearOpMode {
 
         double groundLevel = 0;
         double initLevel = 100;
-        double midLevel = 1200;
+        double midLevel = 1300;
         double highLevel = 2800;
 
 
@@ -148,9 +148,11 @@ public class AutoV3 extends LinearOpMode {
         );
         InstantAction intakeExtendedAction = new InstantAction(
                 () -> {
-                    intakeAngle.setPosition(intakeAngle_IntakingPos);
+                    intakeAngle.setPosition(intakeAngle_IntakingPos +0.07);
                     fourBarRight.setPosition(fourBarExtendedPos);
                     fourBarleft.setPosition(fourBarExtendedPos);
+                    new SleepAction(0.2);
+                    intakeAngle.setPosition(intakeAngle_IntakingPos);
                 }
         );
         InstantAction intakeRetractedAction = new InstantAction(
