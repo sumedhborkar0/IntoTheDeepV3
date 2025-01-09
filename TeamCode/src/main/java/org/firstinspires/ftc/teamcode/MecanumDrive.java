@@ -63,14 +63,14 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 
         // drive model parameters
-        public double inPerTick = 121.45669/61719.5;;
-        public double lateralInPerTick = 0.0015083757460394405;
-        public double trackWidthTicks = 6388.64120058699;
+        public double inPerTick = 125.9/64033;;
+        public double lateralInPerTick = 0.0014375657902319001;
+        public double trackWidthTicks = 6346.619859678088;
 
         // feedforward parameters (in tick units)
-        public double kS = 1.2152944017662803;
-        public double kV = 0.00041692046826446544;
-        public double kA = 0.0001;
+        public double kS = 1.3152944017662803;
+        public double kV = 0.00035692046826446544;
+        public double kA = 0.00007;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -82,13 +82,13 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 0.5;
-        public double lateralGain = 0.5;
-        public double headingGain = 2.3; // shared with turn
+        public double axialGain = 2.5;
+        public double lateralGain = 5.7;
+        public double headingGain = 4; // shared with turn
 
-        public double axialVelGain = 1.0;
-        public double lateralVelGain = 0.5;
-        public double headingVelGain = 2.3; // shared with turn
+        public double axialVelGain = 3.5;
+        public double lateralVelGain = 3.5;
+        public double headingVelGain = 1.7; // shared with turn
     }
 
     public static Params PARAMS = new Params();
@@ -230,6 +230,7 @@ public final class MecanumDrive {
 
         // TODO: reverse motor directions if needed
         //   leftFront.setDirection(DcMotorSimple.Direction.REVERSE)
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html

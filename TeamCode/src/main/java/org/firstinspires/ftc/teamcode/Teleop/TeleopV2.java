@@ -63,6 +63,7 @@ public class TeleopV2 extends LinearOpMode {
         slidesLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slidesRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //POWERS & POSITIONS //////////////////////////////////
         double stopPower = 0;
@@ -121,6 +122,8 @@ public class TeleopV2 extends LinearOpMode {
         boolean gamepad1_leftBumperReleased = true;
         boolean gamepad1_dPadDownReleased = true;
         boolean gamepad1_dPadUpReleased = true;
+        boolean gamepad1_dPadRightReleased = true;
+        boolean gamepad1_dPadLeftReleased = true;
         boolean gamepad1_leftTriggerReleased = true;
         boolean gamepad2_xReleased = true;
         boolean gamepad2_yReleased = true;
@@ -137,6 +140,14 @@ public class TeleopV2 extends LinearOpMode {
         while (opModeIsActive()) {
 
         // GAMEPAD 1 CONTROLS
+            if (gamepad1.dpad_right && gamepad1_dPadRightReleased) {
+                targets += 200;
+                gamepad1_dPadRightReleased = false;
+            }
+            if (gamepad1.dpad_left && gamepad1_dPadLeftReleased) {
+                targets -= 200;
+                gamepad1_dPadLeftReleased = false;
+            }
 
              //ARM MOTOR POSITION TESTING
             if (gamepad1_aReleased && gamepad1.a) {
@@ -222,15 +233,13 @@ public class TeleopV2 extends LinearOpMode {
             }
 
             if (gamepad1.dpad_down && gamepad1_dPadDownReleased) {
-                double currPos = fourBarRight.getPosition();
-                fourBarRight.setPosition(currPos+ 0.05);
-                fourBarleft.setPosition(currPos + 0.05);
+                double currPos = armServo.getPosition();
+                armServo.setPosition(currPos+ 0.05);
                 gamepad1_dPadDownReleased = false;
             }
             else if (gamepad1.dpad_up && gamepad1_dPadUpReleased) {
-                double currPos = fourBarleft.getPosition();
-                fourBarleft.setPosition(currPos + 0.1);
-                fourBarRight.setPosition(currPos + 0.1);
+                double currPos = armServo.getPosition();
+                armServo.setPosition(currPos - 0.05);
                 gamepad1_dPadUpReleased = false;
             }
 
@@ -319,18 +328,16 @@ public class TeleopV2 extends LinearOpMode {
 
 
 
+
+
             int slidesleftpos = slidesLeft.getCurrentPosition();
             double powerLeft = controller.calculate(slidesleftpos, targets);
 
             int slidesrightpos = slidesRight.getCurrentPosition();
             double powerRight = controller.calculate(slidesrightpos, targets);
 
-            double powerleft = powerLeft;
-
-            double powerright = powerRight;
-
-            slidesLeft.setPower(powerleft);
-            slidesRight.setPower(powerright);
+            slidesLeft.setPower(powerLeft);
+            slidesRight.setPower(powerRight);
 
 
             // CHECK IF BUTTONS RELEASED
@@ -348,6 +355,12 @@ public class TeleopV2 extends LinearOpMode {
             }
             if (gamepad1.left_trigger == 0) {
                 gamepad1_leftTriggerReleased = true;
+            }
+            if (!gamepad1.dpad_right) {
+                gamepad1_dPadRightReleased = true;
+            }
+            if (!gamepad1.dpad_left) {
+                gamepad1_dPadLeftReleased = true;
             }
 
             //ARM MOTOR POSITION TESTING
