@@ -179,7 +179,7 @@ public class AutoV3 extends LinearOpMode {
                                 armDropAction,
                                 wristDropAction
                         ),
-                        new SleepAction(0.2),
+                        new SleepAction(0.5),
                         openClaw,
                         new ParallelAction(
                                 armInitAction,

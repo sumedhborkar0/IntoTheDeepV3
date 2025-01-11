@@ -59,17 +59,17 @@ public class TeleopTuning extends LinearOpMode {
 
         double intakePower = 0.71;
         double intakeSlowPower = 0.15;
-        double intakeAngle_IntakingPos = 0.545;
+        double intakeAngle_IntakingPos = 0.5;
         double intakeAngle_RetractedPos = 0;
         double extendoRetractedPos = 0.4;
         double extendoExtendedPos = 0.7;
         double fourBarRetractedPos = 0.15;
-        double fourBarExtendedPos = 0.85;
+        double fourBarExtendedPos = 0.8011;
 
-        double armInitPos = 0.35;
+        double armInitPos = 0.5;
         double armPickupPos = 0.25;
         double armDropPos = 0.7;
-        double wristInitPos = 0.8;
+        double wristInitPos = 0.5;
         double wristPickupPos = 0.95;
         double wristDropPos = 0.28;
         double clawOpenPos = 0.4;
@@ -95,7 +95,7 @@ public class TeleopTuning extends LinearOpMode {
         fourBarleft.setPosition(fourBarRetractedPos);
 
 
-        double targets = 100;
+        double targets = 0;
 
         // CURRENT STATES
         boolean going_down = false;
@@ -139,7 +139,8 @@ public class TeleopTuning extends LinearOpMode {
 
 
             telemetry.addData("Arm Pos", armServo.getPosition());
-            telemetry.addData("Wrist Pos", leftWrist.getPosition());
+            telemetry.addData("Left Wrist Pos", leftWrist.getPosition());
+            telemetry.addData("Right Wrist Pos", rightWrist.getPosition());
             telemetry.addData("Four Bar Pos", fourBarleft.getPosition());
             telemetry.addData("Intake Angle", intakeAngle.getPosition());
             telemetry.update();

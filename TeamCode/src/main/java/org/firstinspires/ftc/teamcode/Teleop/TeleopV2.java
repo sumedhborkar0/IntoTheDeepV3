@@ -70,12 +70,12 @@ public class TeleopV2 extends LinearOpMode {
 
         double intakePower = 0.75;
         double intakeSlowPower = 0.15;
-        double intakeAngle_IntakingPos = 0.535;
+        double intakeAngle_IntakingPos = 0.5d;
         double intakeAngle_RetractedPos = 0;
         double extendoRetractedPos = 0.4;
         double extendoExtendedPos = 0.7;
         double fourBarRetractedPos = 0.15;
-        double fourBarExtendedPos = 0.85; // maybe 0.75
+        double fourBarExtendedPos = 0.8011; // maybe 0.75
 
         double armInitPos = 0.35;
         double armPickupPos = 0.35;
