@@ -63,28 +63,33 @@ public class AutoV3 extends LinearOpMode {
         //POWERS & POSITIONS //////////////////////////////////
         double stopPower = 0;
 
-        double intakePower = 0.75;
+        double intakePower = 0.74;
         double intakeSlowPower = 0.15;
-        double intakeAngle_IntakingPos = 0.535;
-        double intakeAngle_RetractedPos = 0;
-        double extendoRetractedPos = 0.48;
-        double extendoExtendedPos = 0.61;
+        double intakeAngle_IntakingPos = 0.55;
+        double intakeAngle_RetractedPos = 0.06;
+        double extendoRetractedPos = 0.43;
+        double extendoExtendedPos = 0.7;
         double fourBarRetractedPos = 0.15;
-        double fourBarExtendedPos = 0.85;
+        double fourBarExtendedPos = 0.8154;
 
-        double armInitPos = 0.35;
-        double armPickupPos = 0.35;
-        double armDropPos = 0.5494;
-        double wristInitPos = 0.8;
-        double wristPickupPos = 0.975;
-        double wristDropPos = 0.1994;
+        double armInitPos = 0.5;
+        double armPickupPos = 0.4;
+        double armDropPos = 0.75;
+        double armVerticalPos = 0.55;
+        double wristInitPos = 0.75;
+        double wristPickupPos = 0.88;
+        double wristVerticalPos = 0.4;
+        double wristDropPos = 0.05;
         double clawOpenPos = 0.4;
         double clawClosePos = 0.6;
 
         double groundLevel = 0;
         double initLevel = 100;
-        double midLevel = 1300;
-        double highLevel = 2800;
+        double midLevel = 1250;
+        double highLevel = 2750;
+
+
+        double startMovingArmBackDistFromTarget = 600;
 
 
         //INIATE MOTOR POSITIONS
@@ -148,7 +153,7 @@ public class AutoV3 extends LinearOpMode {
         );
         InstantAction intakeExtendedAction = new InstantAction(
                 () -> {
-                    intakeAngle.setPosition(intakeAngle_IntakingPos +0.07);
+                    intake.setPower(intakePower);
                     fourBarRight.setPosition(fourBarExtendedPos);
                     fourBarleft.setPosition(fourBarExtendedPos);
                     new SleepAction(0.2);
@@ -160,8 +165,25 @@ public class AutoV3 extends LinearOpMode {
                     intakeAngle.setPosition(intakeAngle_RetractedPos);
                     fourBarRight.setPosition(fourBarRetractedPos);
                     fourBarleft.setPosition(fourBarRetractedPos);
+                    intake.setPower(intakeSlowPower);
                 }
         );
+        InstantAction armToPickupPosAction = new InstantAction(
+                () -> {
+                    armServo.setPosition(armPickupPos);
+                    leftWrist.setPosition(wristPickupPos);
+                    rightWrist.setPosition(wristPickupPos);
+
+                }
+        );
+        InstantAction intakeAnglePutDown = new InstantAction(
+                () -> {
+                    intakeAngle.setPosition(intakeAngle_IntakingPos + 0.19);
+                    fourBarleft.setPosition(0.875);
+                    fourBarRight.setPosition(0.875);
+                }
+        );
+
 
         waitForStart();
 
@@ -172,32 +194,112 @@ public class AutoV3 extends LinearOpMode {
                 new SequentialAction(
                         new ParallelAction(
                                 drive.actionBuilder(new Pose2d(-63,39,0))
-                                    .strafeToLinearHeading(new Vector2d(-52,56.5), -45)
-                                    .build(),
+                                        .strafeToLinearHeading(new Vector2d(-53,55), -45)
+                                        .build(),
                                 highLevelAction),
                         new ParallelAction(
                                 armDropAction,
                                 wristDropAction
                         ),
-                        new SleepAction(0.5),
+                        new SleepAction(0.8),
                         openClaw,
+                        new SleepAction(0.4),
                         new ParallelAction(
                                 armInitAction,
                                 wristInitAction
 
                         ),
-                        new SleepAction(0.1),
+                        new SleepAction(0.5),
                         groundLevelAction,
                         new ParallelAction(
-                                drive.actionBuilder(new Pose2d(-52, 56.5, 45))
+                                drive.actionBuilder(new Pose2d(-53, 55, 45))
                                         .strafeToLinearHeading(new Vector2d(-52, 48), 0)
                                         .build(),
                                 intakeExtendedAction
 
                         ),
                         drive.actionBuilder(new Pose2d(-52, 48, 0))
-                                .strafeToLinearHeading(new Vector2d(-37, 48), 0)
-                                .build()
+                                .strafeToLinearHeading(new Vector2d(-33, 53), 0)
+                                .build(),
+                        new SleepAction(.5),
+                        new SequentialAction(
+                                intakeAnglePutDown,
+                                drive.actionBuilder(new Pose2d(-33, 53, 0))
+                                        .strafeToLinearHeading(new Vector2d(-31, 54), 0)
+                                        .build()
+                        ),
+                        new SleepAction(.8),
+                        intakeRetractedAction,
+                        new SleepAction(1.1),
+                        new ParallelAction(
+                                drive.actionBuilder(new Pose2d(-31,54,0))
+                                        .strafeToLinearHeading(new Vector2d(-53,56), -45)
+                                        .build(),
+                                new SequentialAction(
+                                        armToPickupPosAction,
+                                        new SleepAction(0.5),
+                                        closeClaw
+                                )
+
+                        ),
+                        highLevelAction,
+                        new SleepAction(1.2),
+                        new ParallelAction(
+                                armDropAction,
+                                wristDropAction
+                        ),
+                        new SleepAction(1),
+                        openClaw,
+
+                        // SAMPLE TWO
+                        new SleepAction(0.4),
+                        new ParallelAction(
+                                armInitAction,
+                                wristInitAction
+
+                        ),
+                        new SleepAction(0.5),
+                        groundLevelAction,
+                        new ParallelAction(
+                                drive.actionBuilder(new Pose2d(-53, 56, -45))
+                                        .strafeToLinearHeading(new Vector2d(-52, 56), 0)
+                                        .build(),
+                                intakeExtendedAction
+
+                        ),
+                        drive.actionBuilder(new Pose2d(-52, 56, 0))
+                                .strafeToLinearHeading(new Vector2d(-33, 63), 0)
+                                .build(),
+                        new SleepAction(.5),
+                        new SequentialAction(
+                                intakeAnglePutDown,
+                                drive.actionBuilder(new Pose2d(-33, 63, 0))
+                                        .strafeToLinearHeading(new Vector2d(-31, 63), 0)
+                                        .build()
+                        ),
+                        new SleepAction(.8),
+                        intakeRetractedAction,
+                        new SleepAction(1.1),
+                        new ParallelAction(
+                                drive.actionBuilder(new Pose2d(-31,63,0))
+                                        .strafeToLinearHeading(new Vector2d(-53,55), -45)
+                                        .build(),
+                                new SequentialAction(
+                                        armToPickupPosAction,
+                                        new SleepAction(0.5),
+                                        closeClaw
+                                )
+
+                        ),
+                        highLevelAction,
+                        new SleepAction(1.2),
+                        new ParallelAction(
+                                armDropAction,
+                                wristDropAction
+                        ),
+                        new SleepAction(1),
+                        openClaw
+
 
 
 

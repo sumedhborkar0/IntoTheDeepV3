@@ -68,30 +68,30 @@ public class TeleopV2 extends LinearOpMode {
         //POWERS & POSITIONS //////////////////////////////////
         double stopPower = 0;
 
-        double intakePower = 0.75;
+        double intakePower = 0.71;
         double intakeSlowPower = 0.15;
-        double intakeAngle_IntakingPos = 0.5d;
-        double intakeAngle_RetractedPos = 0;
-        double extendoRetractedPos = 0.4;
+        double intakeAngle_IntakingPos = 0.55;
+        double intakeAngle_RetractedPos = 0.06;
+        double extendoRetractedPos = 0.43  ;
         double extendoExtendedPos = 0.7;
         double fourBarRetractedPos = 0.15;
-        double fourBarExtendedPos = 0.8011; // maybe 0.75
+        double fourBarExtendedPos = 0.8154; // maybe 0.75
 
-        double armInitPos = 0.35;
-        double armPickupPos = 0.35;
-        double armDropPos = 0.5494;
-        double armVerticalPos = 0.5;
-        double wristInitPos = 0.8;
-        double wristPickupPos = 0.975;
-        double wristVerticalPos = 0.5;
-        double wristDropPos = 0.1994;
+        double armInitPos = 0.5;
+        double armPickupPos = 0.4;
+        double armDropPos = 0.7;
+        double armVerticalPos = 0.55;
+        double wristInitPos = 0.75;
+        double wristPickupPos = 0.88 ;
+        double wristVerticalPos = 0.4;
+        double wristDropPos = 0.05;
         double clawOpenPos = 0.4;
         double clawClosePos = 0.6;
 
         double groundLevel = 0;
         double initLevel = 100;
-        double midLevel = 1300;
-        double highLevel = 2800;
+        double midLevel = 1250;
+        double highLevel = 2750;
 
         double startMovingArmBackDistFromTarget = 600;
 
@@ -255,7 +255,7 @@ public class TeleopV2 extends LinearOpMode {
                 gamepad2_leftBumperReleased = false;
             }
             else if (gamepad2.left_bumper && gamepad2_leftBumperReleased && atDropPos) {
-                leftWrist.setPosition(wristDropPos);
+                leftWrist.setPosition(wristInitPos);
                 rightWrist.setPosition(wristInitPos);
                 armServo.setPosition(armInitPos);
                 justMovedToInitArmTime = System.currentTimeMillis();
@@ -281,14 +281,14 @@ public class TeleopV2 extends LinearOpMode {
                 armWristInited = false;
                 wristInPickupPos = true;
             }
-            if (wristInPickupPos && System.currentTimeMillis() - wristInPickupPosTime >= 50) {
+            if (wristInPickupPos && System.currentTimeMillis() - wristInPickupPosTime >= 400) {
                 clawServo.setPosition(clawClosePos);
                 clawClosedTime = System.currentTimeMillis();
                 wristInPickupPos = false;
                 clawJustClosedOnSample = true;
                 clawClosed = true;
             }
-            if (clawJustClosedOnSample && System.currentTimeMillis() - clawClosedTime >= 100) {
+            if (clawJustClosedOnSample && System.currentTimeMillis() - clawClosedTime >= 150) {
                 leftWrist.setPosition(wristVerticalPos);
                 rightWrist.setPosition(wristVerticalPos);
                 armServo.setPosition(armVerticalPos);

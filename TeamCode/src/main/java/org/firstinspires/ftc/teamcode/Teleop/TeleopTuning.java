@@ -59,17 +59,18 @@ public class TeleopTuning extends LinearOpMode {
 
         double intakePower = 0.71;
         double intakeSlowPower = 0.15;
-        double intakeAngle_IntakingPos = 0.5;
+        double intakeAngle_IntakingPos = 0.55;
         double intakeAngle_RetractedPos = 0;
-        double extendoRetractedPos = 0.4;
+        double extendoRetractedPos = 0.43  ;
         double extendoExtendedPos = 0.7;
         double fourBarRetractedPos = 0.15;
-        double fourBarExtendedPos = 0.8011;
+        double fourBarExtendedPos = 0.8154;
 
         double armInitPos = 0.5;
         double armPickupPos = 0.25;
         double armDropPos = 0.7;
-        double wristInitPos = 0.5;
+        double leftWristInit = 0.5;
+        double rightWristInit = 0.5;
         double wristPickupPos = 0.95;
         double wristDropPos = 0.28;
         double clawOpenPos = 0.4;
@@ -84,8 +85,8 @@ public class TeleopTuning extends LinearOpMode {
         //INIATE MOTOR POSITIONS
         leftExtendoServo.setPosition(extendoRetractedPos);
         rightExtendoServo.setPosition(extendoRetractedPos);
-        rightWrist.setPosition(wristInitPos);
-        leftWrist.setPosition(wristInitPos);
+        rightWrist.setPosition(rightWristInit);
+        leftWrist.setPosition(leftWristInit);
         armServo.setPosition(armInitPos);
         clawServo.setPosition(clawOpenPos);
 
@@ -121,6 +122,9 @@ public class TeleopTuning extends LinearOpMode {
         boolean gamepad1_aReleased = true;
         boolean gamepad1_dPadLeftReleased = true;
         boolean gamepad1_dPadRightReleased = true;
+        boolean gamepad1_leftJoystickButtonReleased = true;
+        boolean gamepad1_rightJoystickButtonReleased = true;
+
 
 
         waitForStart();
@@ -143,6 +147,7 @@ public class TeleopTuning extends LinearOpMode {
             telemetry.addData("Right Wrist Pos", rightWrist.getPosition());
             telemetry.addData("Four Bar Pos", fourBarleft.getPosition());
             telemetry.addData("Intake Angle", intakeAngle.getPosition());
+            telemetry.addData("Extendo Pos", leftExtendoServo.getPosition());
             telemetry.update();
 
             // GAMEPAD 1 CONTROLS
@@ -170,32 +175,28 @@ public class TeleopTuning extends LinearOpMode {
                 armServo.setPosition(currPosition + 0.05);
                 gamepad1_bReleased = false;
             }
-            if (gamepad1.left_stick_button) {
-                targets = midLevel;
-            }
-            if (gamepad1.right_stick_button) {
-                targets = highLevel;
-            }
+
+            
             if (gamepad1_dPadDownReleased && gamepad1.dpad_down) {
                 double currPosition = fourBarRight.getPosition();
-                fourBarleft.setPosition(currPosition - 0.05);
-                fourBarRight.setPosition(currPosition - 0.05);
+                fourBarleft.setPosition(currPosition - 0.01);
+                fourBarRight.setPosition(currPosition - 0.01);
                 gamepad1_dPadDownReleased = false;
             }
             if (gamepad1_dPadUpReleased && gamepad1.dpad_up) {
                 double currPosition = fourBarRight.getPosition();
-                fourBarleft.setPosition(currPosition + 0.05);
-                fourBarRight.setPosition(currPosition + 0.05);
+                fourBarleft.setPosition(currPosition + 0.01);
+                fourBarRight.setPosition(currPosition + 0.01);
                 gamepad1_dPadUpReleased = false;
             }
             if (gamepad1_dPadLeftReleased && gamepad1.dpad_left) {
                 double currPosition = intakeAngle.getPosition();
-                intakeAngle.setPosition(currPosition - 0.05);
+                intakeAngle.setPosition(currPosition - 0.01);
                 gamepad1_dPadLeftReleased = false;
             }
             if (gamepad1_dPadRightReleased && gamepad1.dpad_right) {
                 double currPosition = intakeAngle.getPosition();
-                intakeAngle.setPosition(currPosition + 0.05);
+                intakeAngle.setPosition(currPosition + 0.01);
                 gamepad1_dPadRightReleased = false;
             }
 
@@ -247,6 +248,14 @@ public class TeleopTuning extends LinearOpMode {
                 gamepad1_leftTriggerReleased = false;
 
             }
+            if (gamepad1_leftJoystickButtonReleased && gamepad1.left_stick_button) {
+                targets = midLevel;
+                gamepad1_leftJoystickButtonReleased = false;
+            }
+            if (gamepad1_rightJoystickButtonReleased && gamepad1.right_stick_button) {
+                targets = highLevel;
+                gamepad1_rightJoystickButtonReleased = false;
+            }
 
 
             // CHECK IF BUTTONS RELEASED
@@ -297,6 +306,13 @@ public class TeleopTuning extends LinearOpMode {
             if (gamepad1.left_trigger == 0) {
                 gamepad1_leftTriggerReleased = true;
             }
+            if (!gamepad1.left_stick_button) {
+                gamepad1_leftJoystickButtonReleased = true;
+            }
+            if (!gamepad1.right_stick_button) {
+                gamepad1_rightJoystickButtonReleased = true;
+            }
+
 
 
         }
