@@ -77,7 +77,7 @@ public class AutoV3 extends LinearOpMode {
         double armDropPos = 0.75;
         double armVerticalPos = 0.55;
         double wristInitPos = 0.75;
-        double wristPickupPos = 0.88;
+        double wristPickupPos = 0.915;
         double wristVerticalPos = 0.4;
         double wristDropPos = 0.05;
         double clawOpenPos = 0.4;
@@ -197,11 +197,11 @@ public class AutoV3 extends LinearOpMode {
         Actions.runBlocking(new ParallelAction(
                 pidAction.calcPID(),
                 new SequentialAction(
-                        new ParallelAction(
-                                drive.actionBuilder(new Pose2d(-63,39,0))
-                                        .strafeToLinearHeading(new Vector2d(-53,55), -45)
-                                        .build(),
-                                highLevelAction),
+                new ParallelAction(
+                        drive.actionBuilder(new Pose2d(-63,39,0))
+                                .strafeToLinearHeading(new Vector2d(-53,55), -45)
+                                .build(),
+                        highLevelAction),
                         new ParallelAction(
                                 armDropAction,
                                 wristDropAction
@@ -321,9 +321,11 @@ public class AutoV3 extends LinearOpMode {
                                 intakeExtendedAction
 
                         ),
-                        drive.actionBuilder(new Pose2d(-29, 45, 0))
-                                .strafeToLinearHeading(new Vector2d(-29, 45), -90)
-                                .build(),
+                        new SequentialAction(
+                                drive.actionBuilder(new Pose2d(-29, 45, 0))
+                                        .strafeToLinearHeading(new Vector2d(-29, 45), -90)
+                                        .build()
+                        ),
                         new SleepAction(.5),
                         new SequentialAction(
                                 intakeAnglePutDown,
@@ -363,11 +365,13 @@ public class AutoV3 extends LinearOpMode {
                         ),
                         new SleepAction(0.5),
                         groundLevelAction,
-                        drive.actionBuilder(new Pose2d(-53,55,-45))
-                                .strafeToLinearHeading(new Vector2d(0,26), -90)
-                                .build(),
-                        armParkPosAction
+                        new SequentialAction(
+                                drive.actionBuilder(new Pose2d(-53,55,-45))
+                                        .strafeToLinearHeading(new Vector2d(0,26), -90)
+                                        .build()
+                        ),
 
+                        armParkPosAction
 
 
 

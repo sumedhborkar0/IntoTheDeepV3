@@ -82,7 +82,7 @@ public class TeleopV2 extends LinearOpMode {
         double armDropPos = 0.7;
         double armVerticalPos = 0.55;
         double wristInitPos = 0.75;
-        double wristPickupPos = 0.88 ;
+        double wristPickupPos = 0.915;
         double wristVerticalPos = 0.4;
         double wristDropPos = 0.05;
         double clawOpenPos = 0.4;
