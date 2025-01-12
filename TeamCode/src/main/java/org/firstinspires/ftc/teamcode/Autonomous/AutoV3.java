@@ -183,6 +183,11 @@ public class AutoV3 extends LinearOpMode {
                     fourBarRight.setPosition(0.875);
                 }
         );
+        InstantAction armParkPosAction = new InstantAction(
+                () -> {
+                    armServo.setPosition(0.55);
+                }
+        );
 
 
         waitForStart();
@@ -298,7 +303,71 @@ public class AutoV3 extends LinearOpMode {
                                 wristDropAction
                         ),
                         new SleepAction(1),
-                        openClaw
+                        openClaw,
+
+                        // SAMPLE 3
+                        new SleepAction(0.4),
+                        new ParallelAction(
+                                armInitAction,
+                                wristInitAction
+
+                        ),
+                        new SleepAction(0.5),
+                        groundLevelAction,
+                        new ParallelAction(
+                                drive.actionBuilder(new Pose2d(-53, 55, -45))
+                                        .strafeToLinearHeading(new Vector2d(-29, 45), 0)
+                                        .build(),
+                                intakeExtendedAction
+
+                        ),
+                        drive.actionBuilder(new Pose2d(-29, 45, 0))
+                                .strafeToLinearHeading(new Vector2d(-29, 45), -90)
+                                .build(),
+                        new SleepAction(.5),
+                        new SequentialAction(
+                                intakeAnglePutDown,
+                                drive.actionBuilder(new Pose2d(-29, 45, -90))
+                                        .strafeToLinearHeading(new Vector2d(-29, 52), -90)
+                                        .build()
+                        ),
+                        new SleepAction(.8),
+                        intakeRetractedAction,
+                        new SleepAction(1.1),
+                        new ParallelAction(
+                                drive.actionBuilder(new Pose2d(-29,52,-90))
+                                        .strafeToLinearHeading(new Vector2d(-53,55), -45)
+                                        .build(),
+                                new SequentialAction(
+                                        armToPickupPosAction,
+                                        new SleepAction(0.5),
+                                        closeClaw
+                                )
+
+                        ),
+                        highLevelAction,
+                        new SleepAction(1.2),
+                        new ParallelAction(
+                                armDropAction,
+                                wristDropAction
+                        ),
+                        new SleepAction(1),
+                        openClaw,
+
+                        // PARK
+                        new SleepAction(0.4),
+                        new ParallelAction(
+                                armInitAction,
+                                wristInitAction
+
+                        ),
+                        new SleepAction(0.5),
+                        groundLevelAction,
+                        drive.actionBuilder(new Pose2d(-53,55,-45))
+                                .strafeToLinearHeading(new Vector2d(0,26), -90)
+                                .build(),
+                        armParkPosAction
+
 
 
 
