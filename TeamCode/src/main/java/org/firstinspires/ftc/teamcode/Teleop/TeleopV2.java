@@ -235,10 +235,10 @@ public class TeleopV2 extends LinearOpMode {
                 gamepad1_leftBumperReleased = false;
             }
 
-            if (gamepad1.left_trigger != 0 && intake.getPower() == 0 && gamepad1_leftTriggerReleased) {
+            if (gamepad1.left_trigger != 0 && gamepad1_leftTriggerReleased) {
                 intake.setPower(-1);
                 gamepad1_leftTriggerReleased = false;
-            } else if (gamepad1.left_trigger != 0 && intake.getPower() != 0 && gamepad1_leftTriggerReleased) {
+            } else if (gamepad1.left_trigger != 0 && intake.getPower() <= -0.5 && gamepad1_leftTriggerReleased) {
                 intake.setPower(stopPower);
                 gamepad1_leftTriggerReleased = false;
             }
