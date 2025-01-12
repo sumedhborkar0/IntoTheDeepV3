@@ -347,6 +347,16 @@ public class TeleopV2 extends LinearOpMode {
                 rightWrist.setPosition(currWristPos + 0.05);
                 gamepad2_dPadRightReleased = false;
             }
+            if (gamepad2.dpad_right && gamepad2_dPadRightReleased) {
+                double currArmPos = armServo.getPosition();
+                armServo.setPosition(currArmPos - 0.05);
+                gamepad2_dPadRightReleased = false;
+            }
+            if (gamepad2.dpad_left && gamepad2_dPadLeftReleased) {
+                double currArmPos = armServo.getPosition();
+                armServo.setPosition(currArmPos + 0.05);
+                gamepad2_dPadLeftReleased = false;
+            }
 
 
 
