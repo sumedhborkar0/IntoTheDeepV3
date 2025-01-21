@@ -59,10 +59,10 @@ public class TeleopTuning extends LinearOpMode {
 
         double intakePower = 0.71;
         double intakeSlowPower = 0.15;
-        double intakeAngle_IntakingPos = 0.55;
-        double intakeAngle_RetractedPos = 0;
+        double intakeAngle_IntakingPos = 0.455;
+        double intakeAngle_RetractedPos = 0.05;
         double extendoRetractedPos = 0.43  ;
-        double extendoExtendedPos = 0.7;
+        double extendoExtendedPos = 0.6;
         double fourBarRetractedPos = 0.15;
         double fourBarExtendedPos = 0.8154;
 
