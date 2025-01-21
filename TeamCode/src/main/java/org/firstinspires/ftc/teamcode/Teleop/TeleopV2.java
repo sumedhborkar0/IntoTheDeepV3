@@ -70,21 +70,21 @@ public class TeleopV2 extends LinearOpMode {
 
         double intakePower = 0.71;
         double intakeSlowPower = 0.15;
-        double intakeAngle_IntakingPos = 0.54;
-        double intakeAngle_RetractedPos = 0.07;
+        double intakeAngle_IntakingPos = 0.55;
+        double intakeAngle_RetractedPos = 0.06;
         double extendoRetractedPos = 0.43  ;
-        double extendoExtendedPos = 0.6;
+        double extendoExtendedPos = 0.7;
         double fourBarRetractedPos = 0.15;
-        double fourBarExtendedPos = 0.7917; // maybe 0.75
+        double fourBarExtendedPos = 0.8154; // maybe 0.75
 
-        double armInitPos = 0.6;
-        double armPickupPos = 0.45;
-        double armDropPos = 0.85;
-        double armVerticalPos = 0.75;
-        double wristInitPos = 0.8;
-        double wristPickupPos = 0.9;
-        double wristVerticalPos = 0.45;
-        double wristDropPos = 0.0;
+        double armInitPos = 0.5;
+        double armPickupPos = 0.4;
+        double armDropPos = 0.7;
+        double armVerticalPos = 0.55;
+        double wristInitPos = 0.75;
+        double wristPickupPos = 0.88 ;
+        double wristVerticalPos = 0.4;
+        double wristDropPos = 0.05;
         double clawOpenPos = 0.4;
         double clawClosePos = 0.6;
 
@@ -147,8 +147,6 @@ public class TeleopV2 extends LinearOpMode {
         boolean gamepad2_leftTriggerReleased = true;
         boolean gamepad2_dPadLeftReleased = true;
         boolean gamepad2_dPadRightReleased = true;
-        boolean gamepad2_dPadDownReleased = true;
-        boolean gamepad2_dPadUpReleased = true;
 // TIMES
         double wristInPickupPosTime = 0;
         double clawClosedTime = 0;
@@ -303,30 +301,20 @@ public class TeleopV2 extends LinearOpMode {
                 targets = midLevel;
                 slidesGoingToMid = true;
                 gamepad2_xReleased = false;
-                atDropPos = true;
             }
             else if (gamepad2.x && gamepad2_xReleased && !clawClosed) {
-                leftWrist.setPosition(wristInitPos);
-                rightWrist.setPosition(wristInitPos);
-                armServo.setPosition(armInitPos);
                 targets = midLevel;
                 gamepad2_xReleased = false;
-                atDropPos = true;
             }
 
             if (gamepad2.y && gamepad2_yReleased && clawClosed) {
                 targets = highLevel;
                 slidesGoingtoHigh = true;
                 gamepad2_yReleased = false;
-                atDropPos = true;
             }
             else if (gamepad2.y && gamepad2_yReleased && !clawClosed) {
-                leftWrist.setPosition(wristInitPos);
-                rightWrist.setPosition(wristInitPos);
-                armServo.setPosition(armInitPos);
                 targets = highLevel;
                 gamepad2_yReleased = false;
-                atDropPos = true;
             }
 
             if ((slidesGoingToMid || slidesGoingtoHigh) && (slidesLeft.getCurrentPosition() >= targets - startMovingArmBackDistFromTarget || slidesRight.getCurrentPosition() >= targets - startMovingArmBackDistFromTarget)) {
@@ -342,85 +330,34 @@ public class TeleopV2 extends LinearOpMode {
                 clawClosed = false;
                 gamepad2_leftTriggerReleased = false;
             }
-
             if (gamepad2.right_trigger != 0 && gamepad2_rightTriggerReleased){
                 clawServo.setPosition(clawClosePos);
                 clawClosed = true;
                 gamepad2_rightTriggerReleased = false;
             }
-            if (gamepad2.dpad_left && gamepad2_dPadLeftReleased && !atDropPos) {
+            if (gamepad2.dpad_left && gamepad2_dPadLeftReleased) {
                 double currWristPos = leftWrist.getPosition();
                 leftWrist.setPosition(currWristPos - 0.05);
                 rightWrist.setPosition(currWristPos - 0.05);
-                if (!atDropPos) {
-                    wristPickupPos = currWristPos - 0.05;
-                }
                 gamepad2_dPadLeftReleased = false;
             }
-            if (gamepad2.dpad_left && gamepad2_dPadLeftReleased && atDropPos) {
-                double currWristPos = leftWrist.getPosition();
-                leftWrist.setPosition(currWristPos - 0.05);
-                rightWrist.setPosition(currWristPos - 0.05);
-                if (atDropPos) {
-                    wristDropPos = currWristPos - 0.05;
-                }
-                gamepad2_dPadLeftReleased = false;
-            }
-            if (gamepad2.dpad_right && gamepad2_dPadRightReleased && !atDropPos) {
+            if (gamepad2.dpad_right && gamepad2_dPadRightReleased) {
                 double currWristPos = leftWrist.getPosition();
                 leftWrist.setPosition(currWristPos + 0.05);
                 rightWrist.setPosition(currWristPos + 0.05);
-                if (!atDropPos) {
-                    wristPickupPos = currWristPos + 0.05;
-                }
                 gamepad2_dPadRightReleased = false;
             }
-            if (gamepad2.dpad_right && gamepad2_dPadRightReleased && atDropPos) {
-                double currWristPos = leftWrist.getPosition();
-                leftWrist.setPosition(currWristPos + 0.05);
-                rightWrist.setPosition(currWristPos + 0.05);
-                if (atDropPos) {
-                    wristDropPos = currWristPos + 0.05;
-                }
+            if (gamepad2.dpad_right && gamepad2_dPadRightReleased) {
+                double currArmPos = armServo.getPosition();
+                armServo.setPosition(currArmPos - 0.05);
                 gamepad2_dPadRightReleased = false;
             }
-            if (gamepad2.dpad_up && gamepad2_dPadUpReleased && !atDropPos) {
-                double currArmPos = armServo.getPosition();
-                armServo.setPosition(currArmPos - 0.05);
-                if (!atDropPos) {
-                    armPickupPos = currArmPos - 0.05;
-                }
-                gamepad2_dPadUpReleased = false;
-            }
-            if (gamepad2.dpad_up && gamepad2_dPadUpReleased && atDropPos) {
-                double currArmPos = armServo.getPosition();
-                armServo.setPosition(currArmPos - 0.05);
-                if (atDropPos) {
-                    armDropPos = currArmPos - 0.05;
-                }
-                gamepad2_dPadUpReleased = false;
-            }
-            if (gamepad2.dpad_down && gamepad2_dPadDownReleased && !atDropPos) {
+            if (gamepad2.dpad_left && gamepad2_dPadLeftReleased) {
                 double currArmPos = armServo.getPosition();
                 armServo.setPosition(currArmPos + 0.05);
-                if (!atDropPos) {
-                    armPickupPos = currArmPos + 0.05;
-                }
-                gamepad2_dPadDownReleased = false;
+                gamepad2_dPadLeftReleased = false;
             }
-            if (gamepad2.dpad_down && gamepad2_dPadDownReleased && atDropPos) {
-                double currArmPos = armServo.getPosition();
-                armServo.setPosition(currArmPos + 0.05);
-                if (atDropPos) {
-                    armDropPos = currArmPos + 0.05;
-                }
-                gamepad2_dPadDownReleased = false;
-            }
-            //if (gamepad2.left_stick_x >= 0) {
-                //
-            // targets += 100;
 
-            //}
 
 
 
@@ -477,12 +414,6 @@ public class TeleopV2 extends LinearOpMode {
             }
             if (!gamepad2.dpad_right) {
                 gamepad2_dPadRightReleased = true;
-            }
-            if(!gamepad2.dpad_up) {
-                gamepad2_dPadUpReleased = true;
-            }
-            if(!gamepad2.dpad_down) {
-                gamepad2_dPadDownReleased = true;
             }
 
 
