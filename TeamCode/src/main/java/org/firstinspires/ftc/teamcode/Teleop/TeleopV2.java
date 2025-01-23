@@ -34,28 +34,27 @@ public class TeleopV2 extends LinearOpMode {
         DcMotor slidesLeft = hardwareMap.dcMotor.get("slidesLeft");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
 
-        Servo rightExtendoServo = hardwareMap.servo.get("rightServo");
-        Servo leftExtendoServo = hardwareMap.servo.get("leftServo");
-        Servo fourBarRight = hardwareMap.servo.get("fourBarRight");
-        Servo fourBarleft = hardwareMap.servo.get("fourBarLeft");
-        Servo intakeAngle = hardwareMap.servo.get("intakeAngle");
+        Servo rightExtendoServo = hardwareMap.servo.get("rightExtendoServo");
+        Servo leftExtendoServo = hardwareMap.servo.get("leftExtendoServo");
+        Servo intakeRight = hardwareMap.servo.get("intakeRight");
+        Servo intakeLeft = hardwareMap.servo.get("intakeLeft");
+        Servo intakeWrist = hardwareMap.servo.get("intakeWrist");
 
-        Servo rightWrist = hardwareMap.servo.get("rightWrist");
-        Servo leftWrist = hardwareMap.servo.get("leftWrist");
-        Servo armServo = hardwareMap.servo.get("armMotor");
+        Servo rightArm = hardwareMap.servo.get("rightArm");
+        Servo leftArm = hardwareMap.servo.get("leftArm");
+        Servo clawWrist = hardwareMap.servo.get("clawWrist");
         Servo clawServo = hardwareMap.servo.get("clawMotor");
 
         double kp = 0.004, ki = 0, kd = 0, kf = 0.0000007;
         PIDFController controller = new PIDFController(kp, ki, kd, kf);
-
-
+        
         //REVERSE + INITIATE ENCODERS
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         slidesLeft.setDirection(DcMotor.Direction.REVERSE);
-        fourBarRight.setDirection(Servo.Direction.REVERSE);
+        intakeRight.setDirection(Servo.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
-        rightWrist.setDirection(Servo.Direction.REVERSE);
+        rightArm.setDirection(Servo.Direction.REVERSE);
         rightExtendoServo.setDirection(Servo.Direction.REVERSE);
 
         slidesLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -70,8 +69,8 @@ public class TeleopV2 extends LinearOpMode {
 
         double intakePower = 0.71;
         double intakeSlowPower = 0.15;
-        double intakeAngle_IntakingPos = 0.55;
-        double intakeAngle_RetractedPos = 0.06;
+        double intakeWrist_IntakingPos = 0.55;
+        double intakeWrist_RetractedPos = 0.06;
         double extendoRetractedPos = 0.43  ;
         double extendoExtendedPos = 0.7;
         double fourBarRetractedPos = 0.15;
@@ -99,15 +98,15 @@ public class TeleopV2 extends LinearOpMode {
         //INIATE MOTOR POSITIONS
         leftExtendoServo.setPosition(extendoRetractedPos);
         rightExtendoServo.setPosition(extendoRetractedPos);
-        rightWrist.setPosition(wristInitPos);
-        leftWrist.setPosition(wristInitPos);
-        armServo.setPosition(armInitPos);
+        rightArm.setPosition(wristInitPos);
+        leftArm.setPosition(wristInitPos);
+        clawWrist.setPosition(armInitPos);
         clawServo.setPosition(clawOpenPos);
 
-        intakeAngle.setPosition(intakeAngle_RetractedPos);
+        intakeWrist.setPosition(intakeWrist_RetractedPos);
         intake.setPower(stopPower);
-        fourBarRight.setPosition(fourBarRetractedPos);
-        fourBarleft.setPosition(fourBarRetractedPos);
+        intakeRight.setPosition(fourBarRetractedPos);
+        intakeLeft.setPosition(fourBarRetractedPos);
 
 
         double targets = groundLevel;
@@ -198,11 +197,11 @@ public class TeleopV2 extends LinearOpMode {
 
             // extends scissor lift, extends 4bar
             if (gamepad1.right_bumper && !scissor_extended && gamepad1_rightBumperReleased) {
-                intakeAngle.setPosition(intakeAngle_IntakingPos);
+                intakeWrist.setPosition(intakeWrist_IntakingPos);
                 rightExtendoServo.setPosition(extendoExtendedPos);
                 leftExtendoServo.setPosition(extendoExtendedPos);
-                fourBarRight.setPosition(fourBarExtendedPos);
-                fourBarleft.setPosition(fourBarExtendedPos);
+                intakeRight.setPosition(fourBarExtendedPos);
+                intakeLeft.setPosition(fourBarExtendedPos);
                 intake.setPower(intakePower);
                 scissor_extended = true;
                 intake_running = false;
@@ -210,11 +209,11 @@ public class TeleopV2 extends LinearOpMode {
             }
             // inits scissor lift, extends 4bar
             if (gamepad1.left_bumper && !intake_running && gamepad1_leftBumperReleased) {
-                intakeAngle.setPosition(intakeAngle_IntakingPos);
+                intakeWrist.setPosition(intakeWrist_IntakingPos);
                 rightExtendoServo.setPosition(extendoRetractedPos);
                 leftExtendoServo.setPosition(extendoRetractedPos);
-                fourBarRight.setPosition(fourBarExtendedPos);
-                fourBarleft.setPosition(fourBarExtendedPos);
+                intakeRight.setPosition(fourBarExtendedPos);
+                intakeLeft.setPosition(fourBarExtendedPos);
 
                 intake.setPower(intakePower);
                 intake_running = true;
@@ -223,11 +222,11 @@ public class TeleopV2 extends LinearOpMode {
             }
             // inits scissor lift, inits 4bar
             if ((gamepad1.left_bumper && gamepad1_leftBumperReleased && intake_running) || (gamepad1.right_bumper && gamepad1_rightBumperReleased && scissor_extended)) {
-                fourBarRight.setPosition(fourBarRetractedPos);
-                fourBarleft.setPosition(fourBarRetractedPos);
+                intakeRight.setPosition(fourBarRetractedPos);
+                intakeLeft.setPosition(fourBarRetractedPos);
                 rightExtendoServo.setPosition(extendoRetractedPos);
                 leftExtendoServo.setPosition(extendoRetractedPos);
-                intakeAngle.setPosition(intakeAngle_RetractedPos);
+                intakeWrist.setPosition(intakeWrist_RetractedPos);
                 intake.setPower(intakeSlowPower);
                 intake_running = false;
                 scissor_extended = false;
@@ -246,18 +245,18 @@ public class TeleopV2 extends LinearOpMode {
             // GAMEPAD 2 CONTROLS ////////////////////////////////////////
             //SLIDES PID
             if (gamepad2.left_bumper && gamepad2_leftBumperReleased && !atDropPos) {
-                leftWrist.setPosition(wristInitPos);
-                rightWrist.setPosition(wristInitPos);
-                armServo.setPosition(armInitPos);
+                leftArm.setPosition(wristInitPos);
+                rightArm.setPosition(wristInitPos);
+                clawWrist.setPosition(armInitPos);
                 clawServo.setPosition(clawOpenPos);
                 targets = groundLevel;
                 armWristInited = true;
                 gamepad2_leftBumperReleased = false;
             }
             else if (gamepad2.left_bumper && gamepad2_leftBumperReleased && atDropPos) {
-                leftWrist.setPosition(wristInitPos);
-                rightWrist.setPosition(wristInitPos);
-                armServo.setPosition(armInitPos);
+                leftArm.setPosition(wristInitPos);
+                rightArm.setPosition(wristInitPos);
+                clawWrist.setPosition(armInitPos);
                 justMovedToInitArmTime = System.currentTimeMillis();
                 justMovedToInitArm = true;
                 clawServo.setPosition(clawOpenPos);
@@ -273,9 +272,9 @@ public class TeleopV2 extends LinearOpMode {
             }
 
             if (gamepad2.right_bumper && gamepad2_rightBumperReleased && armWristInited && (slidesLeft.getCurrentPosition() < 50 || slidesRight.getCurrentPosition() < 50)) {
-                armServo.setPosition(armPickupPos);
-                leftWrist.setPosition(wristPickupPos);
-                rightWrist.setPosition(wristPickupPos);
+                clawWrist.setPosition(armPickupPos);
+                leftArm.setPosition(wristPickupPos);
+                rightArm.setPosition(wristPickupPos);
                 wristInPickupPosTime = System.currentTimeMillis();
                 gamepad2_rightBumperReleased = false;
                 armWristInited = false;
@@ -289,9 +288,9 @@ public class TeleopV2 extends LinearOpMode {
                 clawClosed = true;
             }
             if (clawJustClosedOnSample && System.currentTimeMillis() - clawClosedTime >= 150) {
-                leftWrist.setPosition(wristVerticalPos);
-                rightWrist.setPosition(wristVerticalPos);
-                armServo.setPosition(armVerticalPos);
+                leftArm.setPosition(wristVerticalPos);
+                rightArm.setPosition(wristVerticalPos);
+                clawWrist.setPosition(armVerticalPos);
                 clawJustClosedOnSample = false;
 
             }
@@ -318,9 +317,9 @@ public class TeleopV2 extends LinearOpMode {
             }
 
             if ((slidesGoingToMid || slidesGoingtoHigh) && (slidesLeft.getCurrentPosition() >= targets - startMovingArmBackDistFromTarget || slidesRight.getCurrentPosition() >= targets - startMovingArmBackDistFromTarget)) {
-                leftWrist.setPosition(wristDropPos);
-                rightWrist.setPosition(wristDropPos);
-                armServo.setPosition(armDropPos);
+                leftArm.setPosition(wristDropPos);
+                rightArm.setPosition(wristDropPos);
+                clawWrist.setPosition(armDropPos);
                 slidesGoingToMid = false;
                 slidesGoingtoHigh = false;
                 atDropPos = true;
@@ -336,25 +335,25 @@ public class TeleopV2 extends LinearOpMode {
                 gamepad2_rightTriggerReleased = false;
             }
             if (gamepad2.dpad_left && gamepad2_dPadLeftReleased) {
-                double currWristPos = leftWrist.getPosition();
-                leftWrist.setPosition(currWristPos - 0.05);
-                rightWrist.setPosition(currWristPos - 0.05);
+                double currWristPos = leftArm.getPosition();
+                leftArm.setPosition(currWristPos - 0.05);
+                rightArm.setPosition(currWristPos - 0.05);
                 gamepad2_dPadLeftReleased = false;
             }
             if (gamepad2.dpad_right && gamepad2_dPadRightReleased) {
-                double currWristPos = leftWrist.getPosition();
-                leftWrist.setPosition(currWristPos + 0.05);
-                rightWrist.setPosition(currWristPos + 0.05);
+                double currWristPos = leftArm.getPosition();
+                leftArm.setPosition(currWristPos + 0.05);
+                rightArm.setPosition(currWristPos + 0.05);
                 gamepad2_dPadRightReleased = false;
             }
             if (gamepad2.dpad_right && gamepad2_dPadRightReleased) {
-                double currArmPos = armServo.getPosition();
-                armServo.setPosition(currArmPos - 0.05);
+                double currArmPos = clawWrist.getPosition();
+                clawWrist.setPosition(currArmPos - 0.05);
                 gamepad2_dPadRightReleased = false;
             }
             if (gamepad2.dpad_left && gamepad2_dPadLeftReleased) {
-                double currArmPos = armServo.getPosition();
-                armServo.setPosition(currArmPos + 0.05);
+                double currArmPos = clawWrist.getPosition();
+                clawWrist.setPosition(currArmPos + 0.05);
                 gamepad2_dPadLeftReleased = false;
             }
 
