@@ -51,7 +51,7 @@ public class TeleopV2 extends LinearOpMode {
         //REVERSE + INITIATE ENCODERS
         leftBack.setDirection(DcMotor.Direction.REVERSE);
         leftFront.setDirection(DcMotor.Direction.REVERSE);
-        slidesLeft.setDirection(DcMotor.Direction.REVERSE);
+        slidesRight.setDirection(DcMotor.Direction.REVERSE);
         intakeRight.setDirection(Servo.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
         rightArm.setDirection(Servo.Direction.REVERSE);
@@ -67,30 +67,29 @@ public class TeleopV2 extends LinearOpMode {
         //POWERS & POSITIONS //////////////////////////////////
         double stopPower = 0;
 
-        double intakePower = 0.71;
-        double intakeSlowPower = 0.15;
-        double intakeWrist_IntakingPos = 0.55;
-        double intakeWrist_RetractedPos = 0.06;
-        double extendoRetractedPos = 0.43  ;
+        double intakePower = 1;
+        double intakeSlowPower = 0;
+        double intakeWrist_IntakingPos = 0.665;
+        double intakeWrist_RetractedPos = 0.09;
+        double extendoRetractedPos = 0.45  ;
         double extendoExtendedPos = 0.7;
-        double fourBarRetractedPos = 0.15;
-        double fourBarExtendedPos = 0.8154; // maybe 0.75
+        double fourBarRetractedPos = 0.3194;
+        double fourBarExtendedPos = 0.9061; // maybe 0.75
 
-        double armInitPos = 0.5;
-        double armPickupPos = 0.4;
-        double armDropPos = 0.7;
-        double armVerticalPos = 0.55;
-        double wristInitPos = 0.75;
-        double wristPickupPos = 0.88 ;
-        double wristVerticalPos = 0.4;
-        double wristDropPos = 0.05;
-        double clawOpenPos = 0.4;
-        double clawClosePos = 0.6;
+        double armInitPos = 0.65;
+        double armPickupPos = 0.6;
+        double armDropPos = 0.35;
+        double armVerticalPos = 0.5;
+        double wristInitPos = 0.35;
+        double wristPickupPos = 0.25 ;
+        double wristVerticalPos = 0.5;
+        double wristDropPos = 0.6494;
+        double clawOpenPos = 0.55;
+        double clawClosePos = 0.385;
 
         double groundLevel = 0;
-        double initLevel = 100;
         double midLevel = 1250;
-        double highLevel = 2750;
+        double highLevel = 2600;
 
         double startMovingArmBackDistFromTarget = 600;
 

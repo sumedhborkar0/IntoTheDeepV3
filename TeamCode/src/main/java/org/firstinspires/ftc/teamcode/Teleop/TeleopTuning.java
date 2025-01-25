@@ -45,7 +45,7 @@ public class TeleopTuning extends LinearOpMode {
         intake.setDirection(DcMotor.Direction.REVERSE);
         rightArm.setDirection(Servo.Direction.REVERSE);
         rightExtendoServo.setDirection(Servo.Direction.REVERSE);
-        slidesLeft.setDirection(DcMotor.Direction.REVERSE);
+        slidesRight.setDirection(DcMotor.Direction.REVERSE);
 
         slidesLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slidesRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -57,43 +57,44 @@ public class TeleopTuning extends LinearOpMode {
         //POWERS & POSITIONS //////////////////////////////////
         double stopPower = 0;
 
-        double intakePower = 0.71;
-        double intakeSlowPower = 0.15;
-        double intakeWrist_IntakingPos = 0.455;
+        double intakePower = 1;
+        double intakeSlowPower = 0;
+        double intakeWrist_IntakingPos = 0.665;
         double intakeWrist_RetractedPos = 0.05;
-        double extendoRetractedPos = 0.43  ;
-        double extendoExtendedPos = 0.6;
-        double fourBarRetractedPos = 0.15;
-        double fourBarExtendedPos = 0.8154;
+        double extendoRetractedPos = 0.45  ;
+        double extendoExtendedPos = 0.7;
+        double fourBarRetractedPos = 0.3194;
+        double fourBarExtendedPos = 0.9061;
 
         double armInitPos = 0.5;
-        double armPickupPos = 0.5;
+        double armPickupPos = 0.6;
         double armDropPos = 0.5;
         double leftArmInit = 0.5;
         double rightArmInit = 0.5;
-        double wristPickupPos = 0.5;
+        double wristPickupPos = 0.25;
         double wristDropPos = 0.5;
-        double clawOpenPos = 0.5;
-        double clawClosePos = 0.5;
+        double wristInitPos = 0.5;
+        double clawOpenPos = 0.55;
+        double clawClosePos = 0.385;
 
         double groundLevel = 0;
         double initLevel = 100;
-        double midLevel = 1200;
-        double highLevel = 2800;
+        double midLevel = 1250;
+        double highLevel = 2600;
 
 
         //INIATE MOTOR POSITIONS
-        leftExtendoServo.setPosition(0.5);
-        rightExtendoServo.setPosition(0.5);
-        rightArm.setPosition(0.5);
-        leftArm.setPosition(0.5);
-        clawWrist.setPosition(0.5);
-        clawServo.setPosition(0.5);
+        leftExtendoServo.setPosition(extendoRetractedPos);
+        rightExtendoServo.setPosition(extendoRetractedPos);
+        rightArm.setPosition(rightArmInit);
+        leftArm.setPosition(leftArmInit);
+        clawWrist.setPosition(wristInitPos);
+        clawServo.setPosition(clawOpenPos);
 
-        intakeWrist.setPosition(0.5);
-        intake.setPower(0.5);
-        intakeRight.setPosition(0.5);
-        intakeLeft.setPosition(0.5);
+        intakeWrist.setPosition(intakeWrist_RetractedPos);
+        intake.setPower(intakeSlowPower);
+        intakeRight.setPosition(fourBarRetractedPos);
+        intakeLeft.setPosition(fourBarRetractedPos);
 
 
         double targets = 0;
@@ -129,7 +130,11 @@ public class TeleopTuning extends LinearOpMode {
 
         waitForStart();
 
-        if (isStopRequested()) return;
+        if (isStopRequested()) {
+            intakeRight.resetDeviceConfigurationForOpMode();
+            intakeLeft.resetDeviceConfigurationForOpMode();
+            return;
+        }
 
         while (opModeIsActive()) {
             double slidesleftpos = slidesLeft.getCurrentPosition();
@@ -148,6 +153,10 @@ public class TeleopTuning extends LinearOpMode {
             telemetry.addData("Four Bar Pos", intakeLeft.getPosition());
             telemetry.addData("Intake Angle", intakeWrist.getPosition());
             telemetry.addData("Extendo Pos", leftExtendoServo.getPosition());
+           // telemetry.addData("Slides Left power", powerLeft);
+            // telemetry.addData("Slides right power", powerRight);
+            telemetry.addData("Slides Left", slidesLeft.getCurrentPosition());
+            telemetry.addData("Slides Right", slidesRight.getCurrentPosition());
             telemetry.update();
 
             // GAMEPAD 1 CONTROLS
