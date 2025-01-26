@@ -19,7 +19,7 @@ public class myPIDAction {
         slidesLeft = hardwareMap.get(DcMotor.class, "slidesLeft");
         slidesRight = hardwareMap.get(DcMotor.class, "slidesRight");
 
-        slidesLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        slidesRight.setDirection(DcMotorEx.Direction.REVERSE);
 
         slidesLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         slidesRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);

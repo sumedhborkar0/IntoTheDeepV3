@@ -72,7 +72,7 @@ public class TeleopV2 extends LinearOpMode {
         double intakeWrist_IntakingPos = 0.665;
         double intakeWrist_RetractedPos = 0.09;
         double extendoRetractedPos = 0.45  ;
-        double extendoExtendedPos = 0.7;
+        double extendoExtendedPos = 0.675;
         double fourBarRetractedPos = 0.3194;
         double fourBarExtendedPos = 0.9061; // maybe 0.75
 
@@ -85,7 +85,7 @@ public class TeleopV2 extends LinearOpMode {
         double wristVerticalPos = 0.5;
         double wristDropPos = 0.6494;
         double clawOpenPos = 0.55;
-        double clawClosePos = 0.385;
+        double clawClosePos = 0.35;
 
         double groundLevel = 0;
         double midLevel = 1250;
@@ -203,7 +203,7 @@ public class TeleopV2 extends LinearOpMode {
                 intakeLeft.setPosition(fourBarExtendedPos);
                 intake.setPower(intakePower);
                 scissor_extended = true;
-                intake_running = false;
+                intake_running = true;
                 gamepad1_rightBumperReleased = false;
             }
             // inits scissor lift, extends 4bar
@@ -233,13 +233,20 @@ public class TeleopV2 extends LinearOpMode {
                 gamepad1_leftBumperReleased = false;
             }
 
-            if (gamepad1.left_trigger != 0 && gamepad1_leftTriggerReleased) {
+            if (gamepad1.left_trigger != 0) {
                 intake.setPower(-1);
                 gamepad1_leftTriggerReleased = false;
-            } else if (gamepad1.left_trigger != 0 && intake.getPower() <= -0.5 && gamepad1_leftTriggerReleased) {
-                intake.setPower(stopPower);
-                gamepad1_leftTriggerReleased = false;
             }
+            else if (gamepad1.right_trigger != 0) {
+                intake.setPower(1);
+            }
+            else if (intake_running) {
+                intake.setPower(1);
+            }
+            else if (!intake_running) {
+                intake.setPower(0);
+            }
+
 
             // GAMEPAD 2 CONTROLS ////////////////////////////////////////
             //SLIDES PID
@@ -288,7 +295,7 @@ public class TeleopV2 extends LinearOpMode {
                 clawJustClosedOnSample = true;
                 clawClosed = true;
             }
-            if (clawJustClosedOnSample && System.currentTimeMillis() - clawClosedTime >= 150) {
+            if (clawJustClosedOnSample && System.currentTimeMillis() - clawClosedTime >= 300) {
                 leftArm.setPosition(wristVerticalPos);
                 rightArm.setPosition(wristVerticalPos);
                 clawWrist.setPosition(armVerticalPos);
@@ -330,6 +337,7 @@ public class TeleopV2 extends LinearOpMode {
                 clawClosed = false;
                 gamepad2_leftTriggerReleased = false;
             }
+
             if (gamepad2.right_trigger != 0 && gamepad2_rightTriggerReleased){
                 clawServo.setPosition(clawClosePos);
                 clawClosed = true;
