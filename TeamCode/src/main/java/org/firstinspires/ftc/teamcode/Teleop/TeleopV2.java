@@ -248,6 +248,7 @@ public class TeleopV2 extends LinearOpMode {
                 rightArm.setPosition(wristInitPos);
                 clawWrist.setPosition(armInitPos);
                 clawServo.setPosition(clawOpenPos);
+                clawClosed = false;
                 targets = groundLevel;
                 armWristInited = true;
                 gamepad2_leftBumperReleased = false;
@@ -259,6 +260,7 @@ public class TeleopV2 extends LinearOpMode {
                 justMovedToInitArmTime = System.currentTimeMillis();
                 justMovedToInitArm = true;
                 clawServo.setPosition(clawOpenPos);
+                clawClosed = false;
                 atDropPos = false;
                 gamepad2_leftBumperReleased = false;
 
